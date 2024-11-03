@@ -1,0 +1,12 @@
+# folders 
+x64/
+Tetris/
+SFML tutorial/
+Debug/
+.vs/
+
+# files
+Tetris.sln
+SFML tutorial.vcxproj.filters
+SFML tutorial.vcxproj
+SFML tutorial.vcxproj.user
