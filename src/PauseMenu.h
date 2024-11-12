@@ -6,10 +6,10 @@ class PauseMenu : public BaseWindow
 {
 protected:
 	sf::Font& font; // шрифт текста на кнопках
-	int max_size; // количество кнопок на экране паузы
+	uint8_t max_size; // количество кнопок на экране паузы
 	std::vector<sf::Text> buttons;
 	std::vector<std::string> names; // названия кнопок
-	int selected_button = 0;
+	uint8_t selected_button = 0;
 
 	void highlightButton(); // выделить выбранную кнопку другим цветом
 	void resetButtonsColor(); // вернуть исходные цвета
@@ -19,7 +19,7 @@ protected:
 	GameState prev_state = GameState::MainMenu;
 
 public:
-	PauseMenu(sf::RenderWindow& win, sf::Font& font, Audio& a, sf::Sprite& backgroundSprite, int max_size = 3, std::initializer_list<std::string> initList = { "CONTINUE", "OPTIONS", "MAIN MENU" }, float y_pos = 2.0f);
+	PauseMenu(sf::RenderWindow& win, sf::Font& font, Audio& a, sf::Sprite& backgroundSprite, uint8_t max_size = 3, std::initializer_list<std::string> initList = { "CONTINUE", "OPTIONS", "MAIN MENU" }, float y_pos = 2.0f);
 
 	void draw() override;
 	void handleEvents(sf::Event& event) override;

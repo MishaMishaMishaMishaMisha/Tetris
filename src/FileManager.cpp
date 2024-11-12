@@ -50,7 +50,7 @@ bool FileManager::isNumber(const std::string& str)
 	try 
 	{
 		std::size_t pos;
-		std::stoi(str, &pos);
+		int temp = std::stoi(str, &pos);
 		return pos == str.length(); // Проверка: вся строка была числом
 	}
 	catch (const std::invalid_argument&) 
@@ -63,9 +63,9 @@ bool FileManager::isNumber(const std::string& str)
 	}
 }
 
-std::vector<int> FileManager::splitIntoNumbers(const std::string& str)
+std::vector<unsigned int> FileManager::splitIntoNumbers(const std::string& str)
 {
-	std::vector<int> numbers;
+	std::vector<unsigned int> numbers;
 	size_t start = 0;
 	size_t end = str.find(' ');
 

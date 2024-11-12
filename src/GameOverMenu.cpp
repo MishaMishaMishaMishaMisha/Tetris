@@ -1,7 +1,7 @@
 #include "GameOverMenu.h"
 
 
-GameOverMenu::GameOverMenu(sf::RenderWindow& win, sf::Font& font, Audio& audio, sf::Sprite& backgroundSprite, int max_size, std::initializer_list<std::string> init_list, float y_pos) :
+GameOverMenu::GameOverMenu(sf::RenderWindow& win, sf::Font& font, Audio& audio, sf::Sprite& backgroundSprite, uint8_t max_size, std::initializer_list<std::string> init_list, float y_pos) :
     PauseMenu(win, font, audio, backgroundSprite, max_size, init_list)
 {
     // путь к файлу с рекордом
@@ -19,7 +19,7 @@ GameOverMenu::GameOverMenu(sf::RenderWindow& win, sf::Font& font, Audio& audio, 
     text_result.setCharacterSize(30);
     text_result.setFillColor(sf::Color::White);
     sf::FloatRect result_bounds = text_result.getLocalBounds();
-    text_result.setPosition(screen_size.x / 2 - result_bounds.width / 2, screen_size.y / (y_pos+0.5));
+    text_result.setPosition(screen_size.x / 2 - result_bounds.width / 2, screen_size.y / (y_pos+0.5f));
 
     // "SCORE - <value>" над кнопками, под заголовком
     text_score.setFont(font);
@@ -72,7 +72,8 @@ GameState GameOverMenu::getNextState()
     {
         return GameState::GamePlaying;
     }
-    else if (selected_button == 1)
+    //else if (selected_button == 1)
+    else
     {
         return GameState::MainMenu;
     }
@@ -86,7 +87,7 @@ void GameOverMenu::draw()
     window.draw(text_lines);
     window.draw(text_level);
 
-    for (int i = 0; i < max_size; i++)
+    for (size_t i = 0; i < max_size; i++)
     {
         window.draw(buttons[i]);
     }
@@ -121,7 +122,7 @@ void GameOverMenu::setUPtext()
 GameScore GameOverMenu::readRecord()
 {
     std::string line = file_manager.readLine(); // читаем строку
-    std::vector<int> numbers = file_manager.splitIntoNumbers(line); // переводим в числа
+    std::vector<unsigned int> numbers = file_manager.splitIntoNumbers(line); // переводим в числа
 
     GameScore temp_score = { 0, 0, 0 };
     if (numbers.size() >= 3)

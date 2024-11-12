@@ -1,6 +1,6 @@
 #include "Field.h"
 
-Field::Field(int height, int width, sf::RenderWindow& win, sf::Font& font, FieldPosition pos) :
+Field::Field(uint16_t height, uint16_t width, sf::RenderWindow& win, sf::Font& font, FieldPosition pos) :
     grid(height, width, pos), 
     blocks(grid.getVerSize(), std::vector<sf::RectangleShape*>(grid.getHorSize(), nullptr)), 
     window(win), 
@@ -26,7 +26,7 @@ Field::Field(int height, int width, sf::RenderWindow& win, sf::Font& font, Field
     // размещение текста
     sf::FloatRect textRect = text_swap.getLocalBounds();
     auto areaPos = grid.getAreaSwapPosition();
-    int x = areaPos.x + (6*grid.getS() - textRect.width) / 2 - textRect.left;
+    float x = areaPos.x + (6*grid.getS() - textRect.width) / 2 - textRect.left;
     text_swap.setPosition(x, areaPos.y);
 
     //текст NEXT
@@ -83,7 +83,7 @@ Field::Field(int height, int width, sf::RenderWindow& win, sf::Font& font, Field
 
 void Field::createI()
 {
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         figure[i].setFillColor(sf::Color::Blue);
         //figure[i].setPosition(grid.getX0() + (3 + i) * grid.getS(), grid.getY0());
@@ -95,7 +95,7 @@ void Field::createI()
 }
 void Field::createO()
 {
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         figure[i].setFillColor(sf::Color::Red);
     }
@@ -107,7 +107,7 @@ void Field::createO()
 void Field::createT()
 {
     //figure[0].setPosition(grid.getX0() + 5 * grid.getS(), grid.getY0());
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         figure[i].setFillColor(sf::Color::Green);
         //if (i > 0)
@@ -123,7 +123,7 @@ void Field::createT()
 void Field::createL()
 {
     //figure[0].setPosition(grid.getX0() + 4 * grid.getS(), grid.getY0());
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         figure[i].setFillColor(sf::Color::Yellow);
         //if (i > 0)
@@ -139,7 +139,7 @@ void Field::createL()
 void Field::createJ()
 {
     //figure[0].setPosition(grid.getX0() + 6 * grid.getS(), grid.getY0());
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         figure[i].setFillColor(sf::Color::Cyan);
         //if (i > 0)
@@ -154,7 +154,7 @@ void Field::createJ()
 }
 void Field::createS()
 {
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         figure[i].setFillColor(sf::Color::Magenta);
     }
@@ -165,7 +165,7 @@ void Field::createS()
 }
 void Field::createZ()
 {
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         figure[i].setFillColor(sf::Color::Magenta);
     }
@@ -177,7 +177,7 @@ void Field::createZ()
 
 void Field::drawFigure()
 {
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         window.draw(figure[i]);
         window.draw(figure_next[i]);
@@ -188,9 +188,9 @@ void Field::drawFigure()
 
 void Field::drawBlocks() 
 {
-    for (int y = 0; y < grid.getVerSize(); y++)
+    for (size_t y = 0; y < grid.getVerSize(); y++)
     {
-        for (int x = 0; x < grid.getHorSize(); x++)
+        for (size_t x = 0; x < grid.getHorSize(); x++)
         {
             if (blocks[y][x])
             {
@@ -220,7 +220,7 @@ void Field::drawScore()
 
         auto textRect = text_number_score.getLocalBounds();
         auto areaPos = grid.getAreaInfoPosition();
-        int x = areaPos.x + (6 * grid.getS() - textRect.width) / 2 - textRect.left;
+        float x = areaPos.x + (6 * grid.getS() - textRect.width) / 2 - textRect.left;
         text_number_score.setPosition(x, areaPos.y + grid.getS());
 
         textRect = text_number_lines.getLocalBounds();
@@ -241,7 +241,7 @@ void Field::drawScore()
 
 void Field::initFigure()
 {
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         figure[i] = sf::RectangleShape(sf::Vector2f(grid.getS() - 1, grid.getS() - 1));
         figure[i].setOutlineThickness(1);
@@ -256,9 +256,9 @@ void Field::initFigure()
     }
 }
 
-void Field::moveFigure(int side, int down)
+void Field::moveFigure(int8_t side, int8_t down)
 {
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         figure[i].move(side * grid.getS(), down * grid.getS());
     }
@@ -268,16 +268,16 @@ void Field::moveFigure(int side, int down)
     }
 }
 
-std::pair<int, int> Field::coordsTofield(const sf::Vector2f& coords)
+std::pair<uint16_t, uint16_t> Field::coordsTofield(const sf::Vector2f& coords)
 {
-    int x = (coords.x - grid.getX0()) / grid.getS();
-    int y = (coords.y - grid.getY0()) / grid.getS();
+    uint16_t x = static_cast<uint16_t>((coords.x - grid.getX0()) / grid.getS());
+    uint16_t y = static_cast<uint16_t>((coords.y - grid.getY0()) / grid.getS());
     return std::make_pair(x, y);
 }
 
 bool Field::checkIntersect(const sf::Vector2f& coords)
 {
-    std::pair<int, int> x_y = coordsTofield(coords);
+    std::pair<uint16_t, uint16_t> x_y = coordsTofield(coords);
     if (blocks[x_y.second][x_y.first])
     {
         return false;
@@ -301,9 +301,9 @@ bool Field::checkBoards(const sf::Vector2f& coords)
     return true;
 }
 
-bool Field::checkSides(int moveSide)
+bool Field::checkSides(int8_t moveSide)
 {
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         auto next_pos = figure[i].getPosition();
         next_pos.x += moveSide * grid.getS();
@@ -317,7 +317,7 @@ bool Field::checkSides(int moveSide)
 
 bool Field::checkDown()
 {
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         auto next_pos = figure[i].getPosition();
         next_pos.y += grid.getS();
@@ -343,7 +343,7 @@ void Field::rotate(bool force)
 
     // сначала сохран€ем новые координаты квадратов после поворота
     sf::Vector2f newPos[3];
-    for (int i = 1; i < 4; i++)
+    for (size_t i = 1; i < 4; i++)
     {
         // ѕолучаем координаты фигуры относительно центра
         sf::Vector2f relativePosition = figure[i].getPosition() - center;
@@ -359,7 +359,7 @@ void Field::rotate(bool force)
     if (!force)
     {
         // если все квадраты на новых координатах не пересекают границы и другие квадраты то записываем их в figure
-        for (int i = 0; i < 3; i++)
+        for (size_t i = 0; i < 3; i++)
         {
             if (!checkBoards(newPos[i]) || !checkIntersect(newPos[i]))
             {
@@ -369,7 +369,7 @@ void Field::rotate(bool force)
     }
 
     // ”станавливаем новые координаты дл€ фигуры (три блока, центр остаетс€ на месте)
-    for (int i = 1; i < 4; i++)
+    for (size_t i = 1; i < 4; i++)
     {
         figure[i].setPosition(newPos[i - 1].x, newPos[i - 1].y);
     }
@@ -382,11 +382,11 @@ void Field::generateFigure()
     {
         // выбор след. фигуры
         //choice_next = rand() % functions.size();
-        choice_next = distribution(generator);
+        choice_next = static_cast<size_t>(distribution(generator));
 
         // создание фигуры дл€ смены
         //int choice = rand() % functions.size();
-        int choice = distribution(generator);
+        size_t choice = static_cast<size_t>(distribution(generator));
         functions[choice]();
         copyFigure(figure, figure_swap);
         placeSwapFigure();
@@ -396,7 +396,7 @@ void Field::generateFigure()
     }
 
     //int choice = rand() % functions.size();
-    int choice = distribution(generator);
+    size_t choice = distribution(generator);
     functions[choice]();
     copyFigure(figure, figure_next);
     placeNextFigure();
@@ -409,18 +409,18 @@ void Field::generateFigure()
 
 int Field::checkRow()
 {
-    int height = blocks.size();       //  оличество р€дов (20 в данном примере)
-    int width = blocks[0].size();     //  оличество столбцов (10 в данном примере)
+    size_t height = blocks.size();       //  оличество р€дов (20 в данном примере)
+    size_t width = blocks[0].size();     //  оличество столбцов (10 в данном примере)
 
-    int lines = 0;
+    uint16_t lines = 0;
 
-    for (int row = height - 1; row >= 0; --row)
+    for (int row = static_cast<int>(height - 1); row >= 0; --row)
     {
         // Ќачинаем проверку с нижнего р€да
         bool isFull = true;
 
         // ѕровер€ем, заполнен ли текущий р€д
-        for (int col = 0; col < width; ++col)
+        for (size_t col = 0; col < width; ++col)
         {
             if (blocks[row][col] == nullptr)
             {
@@ -435,16 +435,16 @@ int Field::checkRow()
             lines++;
 
             // ”дал€ем все блоки в текущем р€ду
-            for (int col = 0; col < width; ++col)
+            for (size_t col = 0; col < width; ++col)
             {
                 delete blocks[row][col];
                 blocks[row][col] = nullptr;
             }
 
             // —двигаем все блоки выше на одну строку вниз
-            for (int r = row; r > 0; --r)
+            for (size_t r = row; r > 0; --r)
             {
-                for (int col = 0; col < width; ++col)
+                for (size_t col = 0; col < width; ++col)
                 {
                     blocks[r][col] = blocks[r - 1][col]; //  опируем указатель на блок вниз
                     if (blocks[r][col] != nullptr)
@@ -457,7 +457,7 @@ int Field::checkRow()
 
             // ???
             // ќчищаем самый верхний р€д, так как его блоки уже смещены вниз
-            for (int col = 0; col < width; ++col)
+            for (size_t col = 0; col < width; ++col)
             {
                 blocks[0][col] = nullptr;
             }
@@ -474,7 +474,7 @@ int Field::checkRow()
 
 bool Field::checkGameOver()
 {
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         if (figure[i].getPosition().y == grid.getY0())
         {
@@ -486,9 +486,9 @@ bool Field::checkGameOver()
 
 void Field::restart()
 {
-    for (int i = 0; i < blocks.size(); i++)
+    for (size_t i = 0; i < blocks.size(); i++)
     {
-        for (int j = 0; j < blocks[0].size(); j++)
+        for (size_t j = 0; j < blocks[0].size(); j++)
         {
             if (blocks[i][j])
             {
@@ -506,9 +506,9 @@ void Field::restart()
 
 void Field::addBlock()
 {
-    for (int i = 0; i < 4; ++i)
+    for (size_t i = 0; i < 4; ++i)
     {
-        std::pair<int, int> x_y = coordsTofield(figure[i].getPosition());
+        std::pair<uint16_t, uint16_t> x_y = coordsTofield(figure[i].getPosition());
         blocks[x_y.second][x_y.first] = new sf::RectangleShape(figure[i]);
     }
 
@@ -524,7 +524,7 @@ void Field::fallFigure()
 
 void Field::copyFigure(sf::RectangleShape (&from)[4], sf::RectangleShape (&to)[4])
 {
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         //figure_next[i].setPosition(figure[i].getPosition());
         //figure_next[i].move(grid.getS() * 10, grid.getS() * 6);
@@ -547,7 +547,7 @@ void Field::placeNextFigure()
     float moveX = offsetX - blockPos.x;
     float moveY = offsetY - blockPos.y;
 
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         figure_next[i].move(moveX, moveY);
     }
@@ -564,7 +564,7 @@ void Field::placeSwapFigure()
     float moveX = offsetX - blockPos.x;
     float moveY = offsetY - blockPos.y;
 
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         figure_swap[i].move(moveX, moveY);
     }
@@ -574,7 +574,7 @@ void Field::swapFigure()
 {
     // запоминаем текущую позицию
     sf::Vector2f real_pos[4];
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         real_pos[i] = figure[i].getPosition();
     }
@@ -583,8 +583,8 @@ void Field::swapFigure()
     functions[choice_cur]();
 
     // считаем на сколько она сместилась
-    int x_dif = real_pos[0].x - figure[0].getPosition().x;
-    int y_dif = real_pos[0].y - figure[0].getPosition().y;
+    float x_dif = real_pos[0].x - figure[0].getPosition().x;
+    float y_dif = real_pos[0].y - figure[0].getPosition().y;
 
     // замен€ем figure_swap на figure в окошке слева
     copyFigure(figure, figure_swap);
@@ -593,7 +593,7 @@ void Field::swapFigure()
     functions[choice_swap]();
 
     // смещаем ее использу€ пред. величины
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         figure[i].move(x_dif, y_dif);
     }
@@ -601,10 +601,10 @@ void Field::swapFigure()
     // провер€ем не пересекаетс€ ли нова€ фигура с другими блоками и не выходит за поле
     // если пересекает - пробуем повернуть фигуру
     bool isIntersect;
-    for (int rotate = 0; rotate < 4; rotate++)
+    for (size_t rotate = 0; rotate < 4; rotate++)
     {
         isIntersect = false; // допускаем что пересечений нету
-        for (int i = 0; i < 4; i++)
+        for (size_t i = 0; i < 4; i++)
         {
             if (!checkBoards(figure[i].getPosition()) || !checkIntersect(figure[i].getPosition()))
             {
@@ -627,7 +627,7 @@ void Field::swapFigure()
         placeSwapFigure();
 
         functions[choice_cur]();
-        for (int i = 0; i < 4; i++)
+        for (size_t i = 0; i < 4; i++)
         {
             figure[i].setPosition(real_pos[i]);
         }
@@ -641,14 +641,14 @@ void Field::swapFigure()
     }
 }
 
-void Field::calculateSpeed(int level) {
+void Field::calculateSpeed(uint8_t level) {
     // Ѕазова€ скорость дл€ 1 уровн€: 0.5 секунд
     float baseSpeed = 0.5f;
     //  оэффициент уменьшени€ задержки на каждом уровне (например, 20%)
     float reductionFactor = 0.8f;
 
     // «адержка будет уменьшатьс€ на 20% с каждым уровнем
-    levelSpeed = baseSpeed * std::pow(reductionFactor, level - 1);
+    levelSpeed = baseSpeed * static_cast<float>(std::pow(reductionFactor, level - 1));
 
     // ћинимальна€ скорость, чтобы блоки не падали слишком быстро
     if (levelSpeed < 0.1f) levelSpeed = 0.1f;
@@ -661,17 +661,17 @@ void Field::createShadow()
     copyFigure(figure, figure_shadow);
 
     // делаем фигуру полупрозрачной
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         figure_shadow[i].setFillColor(sf::Color(200, 200, 200, 50));
     }
 
     // опускаем в самый низ
     bool isMoveDown = true;
-    int y_count = 0;
+    uint16_t y_count = 0;
     while (isMoveDown && y_count < 20)
     {
-        for (int i = 0; i < 4; i++)
+        for (size_t i = 0; i < 4; i++)
         {
             auto next_pos = figure_shadow[i].getPosition();
             next_pos.y += (y_count + 1) * grid.getS();
@@ -686,18 +686,18 @@ void Field::createShadow()
             y_count++;
         }
     }
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         figure_shadow[i].move(0, y_count * grid.getS());
     }
 
 }
 
-void Field::setSeed(unsigned int  seed)
+void Field::setSeed(uint32_t seed)
 {
     if (seed == 0)
     {
-        seed = time(0);
+        seed = static_cast<uint32_t>(time(0));
     }
     generator.seed(seed);
 }

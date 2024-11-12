@@ -12,11 +12,11 @@ private:
 
 	// переменная для сдвига блоков в стороны: 1 вправо, -1 влево, 0 на месте
 	// moveDown - ускоренное падение блока
-	int moveSide, moveDown;
+	int8_t moveSide, moveDown;
 
 	bool gameOver = false; // флаг окончания игры
 	bool moveLast = false; // флаг задержки: когда фигура упала вниз, есть еще время чтобы ее сдвинуть в сторону
-	int moveSideCount; // количество сдвигов в сторону за одну итерацию
+	uint16_t moveSideCount; // количество сдвигов в сторону за одну итерацию
 
 	// привязка падения блоков ко времени
 	sf::Clock clock;
@@ -25,7 +25,7 @@ private:
 	bool isPVP = false; // одиночная или pvp игра
 
 public:
-	Game(int height, int width, sf::RenderWindow& win, Audio& a, sf::Sprite& backgroundSprite, sf::Font& font, FieldPosition f_pos = FieldPosition::Center);
+	Game(uint16_t height, uint16_t width, sf::RenderWindow& win, Audio& a, sf::Sprite& backgroundSprite, sf::Font& font, FieldPosition f_pos = FieldPosition::Center);
 
 	void draw() override;
 	void handleEvents(sf::Event& event) override; // обработка нажатий во время игры
@@ -39,7 +39,7 @@ public:
 
 	void setControlsMode(ControlsMode mode); // изменить управление - стрелки/wasd/оба типа
 
-	void setSeed(unsigned int seed);
+	void setSeed(uint32_t seed);
 
 	bool isGameOver() { return gameOver; }
 };

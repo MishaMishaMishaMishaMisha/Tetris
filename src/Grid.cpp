@@ -1,11 +1,11 @@
 #include "Grid.h"
 
-Grid::Grid(int height, int width, FieldPosition pos)
+Grid::Grid(uint16_t height, uint16_t width, FieldPosition pos)
 {
     this->height = height;
     this->width = width;
 
-    s = std::min(width / nHor - 1, height / nVer - 1);
+    s = static_cast<float>(std::min(width / nHor - 1, height / nVer - 1));
 
     if (pos == FieldPosition::Left)
     {
@@ -26,12 +26,12 @@ Grid::Grid(int height, int width, FieldPosition pos)
     linesHor.resize(n);
     linesVer.setPrimitiveType(sf::Lines);
     linesVer.resize(m);
-    for (int i = 0, y = 0; i < n; i += 2, y += s)
+    for (size_t i = 0, y = 0; i < n; i += 2, y += static_cast<size_t>(s))
     {
         linesHor[i].position = sf::Vector2f(x0, y0 + y);
         linesHor[i + 1].position = sf::Vector2f(x0 + nHor * s, y0 + y);
     }
-    for (int i = 0, x = 0; i < m; i += 2, x += s)
+    for (size_t i = 0, x = 0; i < m; i += 2, x += static_cast<size_t>(s))
     {
         linesVer[i].position = sf::Vector2f(x0 + x, y0);
         linesVer[i + 1].position = sf::Vector2f(x0 + x, y0 + nVer * s);
@@ -45,8 +45,8 @@ Grid::Grid(int height, int width, FieldPosition pos)
     if (pos == FieldPosition::Center)
     {
         areaSwap.setSize(sf::Vector2f(s * 6, s * 4));
-        int mid = (int)x0 / 2;
-        int y = y0 + s * nVer / 2 - s * 2;
+        float mid = x0 / 2;
+        float y = y0 + s * nVer / 2 - s * 2;
         areaSwap.setPosition(mid - 3 * s, y);
         areaSwap.setFillColor(sf::Color(200, 200, 200, 50));
         areaSwap.setOutlineThickness(5);

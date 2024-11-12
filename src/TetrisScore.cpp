@@ -1,6 +1,6 @@
 #include "TetrisScore.h"
 
-void TetrisScore::addScore(int clearedLines) 
+void TetrisScore::addScore(uint16_t clearedLines) 
 {
     if (!clearedLines)
     {
@@ -8,7 +8,7 @@ void TetrisScore::addScore(int clearedLines)
     }
  
     isUpdate = true;
-    int points = 0;
+    uint32_t points = 0;
     switch (clearedLines) 
     {
     case 1: points = 40 * (game_score.level + 1); break;

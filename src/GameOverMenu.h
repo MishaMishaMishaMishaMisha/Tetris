@@ -20,7 +20,7 @@ protected:
 
 public:
     // в констуркторе переопределяем кнопки и инициализируем поля текста
-    GameOverMenu(sf::RenderWindow& win, sf::Font& font, Audio& audio, sf::Sprite& backgroundSprite, int max_size = 2, std::initializer_list<std::string> init_list = { "PLAY AGAIN", "BACK TO MENU" }, float y_pos = 4.0f);
+    GameOverMenu(sf::RenderWindow& win, sf::Font& font, Audio& audio, sf::Sprite& backgroundSprite, uint8_t max_size = 2, std::initializer_list<std::string> init_list = { "PLAY AGAIN", "BACK TO MENU" }, float y_pos = 4.0f);
 
     void draw() override; // переопределяем метод для отображения результата игры
     GameState getNextState() override;

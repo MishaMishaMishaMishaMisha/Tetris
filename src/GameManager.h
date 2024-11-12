@@ -1,5 +1,5 @@
 #pragma once
-#include "Game.h";
+#include "Game.h"
 #include "PauseMenu.h"
 #include "MainMenu.h"
 #include "GameOverMenu.h"
@@ -14,7 +14,7 @@ class GameManager
 
 private:
 	GameState current_state = GameState::MainMenu; // текущее окно
-    int index = 0; // номер состояния (окна)
+    size_t index = 0; // номер состояния (окна)
     std::vector<BaseWindow*>& windows; // вектор окон
 
 
@@ -23,7 +23,7 @@ public:
 
     // вернуть номер текущего окна.
     // если текущее окно стало не активным, переключаем на след. окно
-    int get_state();
+    size_t get_state();
 
     // переключение на след. окно
     void updateState();

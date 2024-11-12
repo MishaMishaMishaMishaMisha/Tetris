@@ -101,7 +101,7 @@ void Audio::playSelectEffect()
 void Audio::loadSettings()
 {
 	std::string line = file_manager.readLine(); // читаем строку
-	std::vector<int> numbers = file_manager.splitIntoNumbers(line); // переводим в числа
+	std::vector<unsigned int> numbers = file_manager.splitIntoNumbers(line); // переводим в числа
 
 	if (numbers.size() >= 2)
 	{
@@ -116,13 +116,13 @@ void Audio::saveSettings()
 	file_manager.writeLine(line);
 }
 
-void Audio::setMusicVolume(int vol)
+void Audio::setMusicVolume(uint8_t vol)
 {
 	if (vol == music_volume) return;
 	music_volume = vol;
 	music.setVolume(music_volume);
 }
-void Audio::setSoundVolume(int vol)
+void Audio::setSoundVolume(uint8_t vol)
 {
 	if (vol == sound_volume) return;
 	sound_volume = vol;

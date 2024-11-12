@@ -1,13 +1,13 @@
 #include "GamePvPLocal.h"
 
-GamePvPLocal::GamePvPLocal(int height, int width, sf::RenderWindow& win, Audio& a, sf::Sprite& backgroundSprite, sf::Font& font) :
+GamePvPLocal::GamePvPLocal(uint16_t height, uint16_t width, sf::RenderWindow& win, Audio& a, sf::Sprite& backgroundSprite, sf::Font& font) :
     BaseWindow(a, backgroundSprite, win),
     game_left(height, width, win, a, backgroundSprite, font, FieldPosition::Left),
     game_right(height, width, win, a, backgroundSprite, font, FieldPosition::Right)
 {
     // центральная линия
     centerLine.setSize(sf::Vector2f(5, height)); // Толщина 5
-    centerLine.setPosition(width / 2, 0);
+    centerLine.setPosition(width / 2.f, 0.f);
     centerLine.setFillColor(sf::Color::White);
 
     // изменяем тип управления для каждого игрока
@@ -58,7 +58,7 @@ GameState GamePvPLocal::getNextState()
 
 void GamePvPLocal::restart()
 {
-    auto seed = time(0);
+    uint32_t seed = static_cast<uint32_t>(time(0));
     game_left.setSeed(seed);
     game_right.setSeed(seed);
     game_left.restart();

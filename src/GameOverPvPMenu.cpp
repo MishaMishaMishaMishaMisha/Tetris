@@ -1,8 +1,11 @@
 #include "GameOverPvPMenu.h"
 
-GameOverPvPMenu::GameOverPvPMenu(sf::RenderWindow& win, sf::Font& font, Audio& audio, sf::Sprite& backgroundSprite, int max_size, std::initializer_list<std::string> init_list, float y_pos) :
+GameOverPvPMenu::GameOverPvPMenu(sf::RenderWindow& win, sf::Font& font, Audio& audio, sf::Sprite& backgroundSprite, uint8_t max_size, std::initializer_list<std::string> init_list, float y_pos) :
     PauseMenu(win, font, audio, backgroundSprite, max_size, init_list)
 {
+
+    winner = { 0, 0, 0 };
+
     // путь к файлу с рекордом
     file_manager.setPath("Files/");
     file_manager.setFileName("record.txt");
@@ -15,7 +18,7 @@ GameOverPvPMenu::GameOverPvPMenu(sf::RenderWindow& win, sf::Font& font, Audio& a
     text_result_left.setCharacterSize(30);
     text_result_left.setFillColor(sf::Color::White);
     sf::FloatRect result_bounds = text_result_left.getLocalBounds();
-    text_result_left.setPosition(screen_size.x / 4 - result_bounds.width / 2, screen_size.y / (y_pos + 0.5));
+    text_result_left.setPosition(screen_size.x / 4 - result_bounds.width / 2, screen_size.y / (y_pos + 0.5f));
 
     // "SCORE - <value>" над кнопками, под заголовком
     text_score_left.setFont(font);
@@ -49,7 +52,7 @@ GameOverPvPMenu::GameOverPvPMenu(sf::RenderWindow& win, sf::Font& font, Audio& a
     text_result_right.setCharacterSize(30);
     text_result_right.setFillColor(sf::Color::White);
     result_bounds = text_result_right.getLocalBounds();
-    text_result_right.setPosition(screen_size.x / 2 + screen_size.x / 4 - result_bounds.width / 2, screen_size.y / (y_pos + 0.5));
+    text_result_right.setPosition(screen_size.x / 2 + screen_size.x / 4 - result_bounds.width / 2, screen_size.y / (y_pos + 0.5f));
 
     // "SCORE - <value>" над кнопками, под заголовком
     text_score_right.setFont(font);
@@ -103,7 +106,8 @@ GameState GameOverPvPMenu::getNextState()
     {
         return GameState::GamePlayingPvPLocal;
     }
-    else if (selected_button == 1)
+    //else if (selected_button == 1)
+    else
     {
         return GameState::MainMenu;
     }
@@ -121,7 +125,7 @@ void GameOverPvPMenu::draw()
     window.draw(text_lines_right);
     window.draw(text_level_right);
 
-    for (int i = 0; i < max_size; i++)
+    for (size_t i = 0; i < max_size; i++)
     {
         window.draw(buttons[i]);
     }
@@ -170,7 +174,7 @@ void GameOverPvPMenu::setUPtext()
 GameScore GameOverPvPMenu::readRecord()
 {
     std::string line = file_manager.readLine(); // читаем строку
-    std::vector<int> numbers = file_manager.splitIntoNumbers(line); // переводим в числа
+    std::vector<unsigned int> numbers = file_manager.splitIntoNumbers(line); // переводим в числа
 
     GameScore temp_score = { 0, 0, 0 };
     if (numbers.size() >= 3)

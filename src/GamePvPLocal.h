@@ -10,7 +10,7 @@ private:
 	sf::RectangleShape centerLine; // вертикальная линия по центру экрана
 
 public:
-	GamePvPLocal(int height, int width, sf::RenderWindow& win, Audio& a, sf::Sprite& backgroundSprite, sf::Font& font);
+	GamePvPLocal(uint16_t height, uint16_t width, sf::RenderWindow& win, Audio& a, sf::Sprite& backgroundSprite, sf::Font& font);
 
 	void draw() override;
 	void handleEvents(sf::Event& event) override;

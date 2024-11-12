@@ -1,8 +1,12 @@
 #include "Game.h"
 
-Game::Game(int height, int width, sf::RenderWindow& win, Audio& a, sf::Sprite& backgroundSprite, sf::Font& font, FieldPosition f_pos) :
+Game::Game(uint16_t height, uint16_t width, sf::RenderWindow& win, Audio& a, sf::Sprite& backgroundSprite, sf::Font& font, FieldPosition f_pos) :
     BaseWindow(a, backgroundSprite, win),
-    field(height, width, win, font, f_pos)
+    field(height, width, win, font, f_pos),
+    moveDown(0),
+    moveSide(0),
+    moveSideCount(0),
+    time(0)
 {
     // фигура
     field.initFigure();

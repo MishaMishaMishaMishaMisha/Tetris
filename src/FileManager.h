@@ -25,7 +25,7 @@ public:
 	std::string readLine();
 
 	// разбить строку на слова (числа)
-	std::vector<int> splitIntoNumbers(const std::string& str);
+	std::vector<unsigned int> splitIntoNumbers(const std::string& str);
 
 	// можно ли строку конвертировать в число
 	bool isNumber(const std::string& str);

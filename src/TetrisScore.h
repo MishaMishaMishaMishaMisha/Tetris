@@ -4,7 +4,7 @@
 class TetrisScore {
 private:
     GameScore game_score;
-    const int linesPerLevel = 10; // к-во разрушенных рядов для перехода на след. уровень
+    const unsigned int linesPerLevel = 10; // к-во разрушенных рядов для перехода на след. уровень
 
 public:
     TetrisScore()
@@ -15,7 +15,7 @@ public:
         isUpdate = true;
     }
 
-    void addScore(int clearedLines);
+    void addScore(uint16_t clearedLines);
     void reset();
 
     GameScore getScore() const { return game_score; }

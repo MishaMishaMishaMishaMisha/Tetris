@@ -1,6 +1,6 @@
 #include "PauseMenu.h"
 
-PauseMenu::PauseMenu(sf::RenderWindow& win, sf::Font& font, Audio& a, sf::Sprite& backgroundSprite, int max_size, std::initializer_list<std::string> initList, float y_pos) :
+PauseMenu::PauseMenu(sf::RenderWindow& win, sf::Font& font, Audio& a, sf::Sprite& backgroundSprite, uint8_t max_size, std::initializer_list<std::string> initList, float y_pos) :
     BaseWindow(a, backgroundSprite, win),
     font(font),
     max_size(max_size),
@@ -14,7 +14,7 @@ void PauseMenu::init(float y_pos)
 {
     auto screen_size = window.getSize();
 
-    for (int i = 0; i < max_size; i++)
+    for (size_t i = 0; i < max_size; i++)
     {
         buttons[i].setFont(font);
         buttons[i].setFillColor(sf::Color::White);
@@ -33,7 +33,7 @@ void PauseMenu::init(float y_pos)
 void PauseMenu::draw()
 {
     window.draw(backgroundSprite); // фон
-    for (int i = 0; i < max_size; i++)
+    for (size_t i = 0; i < max_size; i++)
     {
         window.draw(buttons[i]);
     }
@@ -103,7 +103,8 @@ GameState PauseMenu::getNextState()
         // options menu
         return GameState::OptionsMenu;
     }
-    else if (selected_button == 2)
+    //else if (selected_button == 2)
+    else
     {
         // main menu
         return GameState::MainMenu;
@@ -112,7 +113,7 @@ GameState PauseMenu::getNextState()
 
 void PauseMenu::resetButtonsColor()
 {
-    for (int i = 0; i < max_size; i++)
+    for (size_t i = 0; i < max_size; i++)
     {
         buttons[i].setFillColor(sf::Color::White);
     }

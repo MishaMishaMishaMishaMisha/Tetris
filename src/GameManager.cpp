@@ -1,7 +1,7 @@
 #include "GameManager.h"
 
 
-int GameManager::get_state()
+size_t GameManager::get_state()
 {
     if (isChanged())
     {
@@ -18,11 +18,11 @@ void GameManager::updateState()
     // отдельная обработка для выхода из игры
     if (current_state == GameState::Exit)
     {
-        index = -1;
+        index = 999;
         return;
     }
 
-    index = static_cast<int>(current_state);
+    index = static_cast<size_t>(current_state);
 
     // если игра начата из главного меню либо окна гейм овера - нужно сбросить фигуры
     if ((prev_state == GameState::MainMenu || prev_state == GameState::GameoverMenu) && current_state == GameState::GamePlaying)
@@ -42,7 +42,7 @@ void GameManager::updateState()
     if (current_state == GameState::GameoverMenu)
     {
         GameOverMenu* gameovermenu_temp = dynamic_cast<GameOverMenu*>(windows[index]);
-        Game* game_temp = dynamic_cast<Game*>(windows[static_cast<int>(prev_state)]);
+        Game* game_temp = dynamic_cast<Game*>(windows[static_cast<size_t>(prev_state)]);
         gameovermenu_temp->setScore(game_temp->getScore()); // передаем результат
         gameovermenu_temp->checkNewRecord(); // проверяем побит ли рекорд
         gameovermenu_temp->setUPtext();
@@ -52,7 +52,7 @@ void GameManager::updateState()
     if (current_state == GameState::GameoverPvPMenu)
     {
         GameOverPvPMenu* gameovermenu_temp = dynamic_cast<GameOverPvPMenu*>(windows[index]);
-        GamePvPLocal* game_temp = dynamic_cast<GamePvPLocal*>(windows[static_cast<int>(prev_state)]);
+        GamePvPLocal* game_temp = dynamic_cast<GamePvPLocal*>(windows[static_cast<size_t>(prev_state)]);
         gameovermenu_temp->setScore_left(game_temp->getScore_left());
         gameovermenu_temp->setScore_right(game_temp->getScore_right());
         gameovermenu_temp->checkNewRecord(); // проверяем побит ли рекорд одним из игроков
@@ -88,7 +88,7 @@ void GameManager::updateState()
 void GameManager::setState(GameState& state)
 {
     current_state = state;
-    index = static_cast<int>(current_state);
+    index = static_cast<size_t>(current_state);
     windows[index]->set_Active();
 }
 

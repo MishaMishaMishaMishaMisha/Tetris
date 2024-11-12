@@ -7,7 +7,7 @@ OptionsMenu::OptionsMenu(sf::RenderWindow& win, sf::Font& font, Audio& a, sf::Sp
 {
     // картинка с управлением
     auto win_size = window.getSize();
-    controlsImage.setSize(sf::Vector2f(win_size.x / 5, win_size.y / 1.5));
+    controlsImage.setSize(sf::Vector2f(win_size.x / 5.f, win_size.y / 1.5f));
     controlsImage.setTexture(&texture_cont);
     float image_height = controlsImage.getSize().y;
     controlsImage.setPosition(buttons[0].getPosition().x / 4, (win_size.y - image_height) / 2);
@@ -15,8 +15,8 @@ OptionsMenu::OptionsMenu(sf::RenderWindow& win, sf::Font& font, Audio& a, sf::Sp
     // ползунки громкости (положение возле надписей)
     auto button_pos = buttons[0].getPosition();
     auto button_bounds = buttons[0].getGlobalBounds();
-    int width = win_size.x/4;
-    int height = button_bounds.height;
+    float width = win_size.x/4.f;
+    float height = button_bounds.height;
     musicBar.setValue(audio.getMusicVolume());
     musicBar.setSize(sf::Vector2f(width, height));
     float x = button_pos.x + button_bounds.width + 50;
@@ -91,7 +91,7 @@ void OptionsMenu::draw()
     window.draw(controlsImage);
     musicBar.drawBar();
     soundBar.drawBar();
-    for (int i = 0; i < max_size; i++)
+    for (size_t i = 0; i < max_size; i++)
     {
         window.draw(buttons[i]);
     }

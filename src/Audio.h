@@ -27,8 +27,8 @@ private:
 	sf::Sound sound_select; // звуковой эффект - выбор пункта меню
 	sf::SoundBuffer buff_select;
 
-	int sound_volume = 20; // громкость звуков
-	int music_volume = 30; // грумкость музыки
+	uint8_t sound_volume = 20; // громкость звуков
+	uint8_t music_volume = 30; // грумкость музыки
 	bool isPlaying = false; // играет ли музыка
 
 	FileManager file_manager;
@@ -47,11 +47,11 @@ public:
 	void playNewRecordEffect();
 	void playSelectEffect();
 
-	int getMusicVolume() { return music_volume; }
-	int getSoundVolume() { return sound_volume; }
+	uint8_t getMusicVolume() { return music_volume; }
+	uint8_t getSoundVolume() { return sound_volume; }
 
-	void setMusicVolume(int vol);
-	void setSoundVolume(int vol);
+	void setMusicVolume(uint8_t vol);
+	void setSoundVolume(uint8_t vol);
 
 	void loadSettings(); // загрузить настройки громкости с файла
 	void saveSettings(); // схранить настройки громкости в файл

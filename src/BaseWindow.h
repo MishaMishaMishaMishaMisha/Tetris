@@ -16,10 +16,10 @@ protected:
 public:
 	BaseWindow(Audio& a, sf::Sprite& bs, sf::RenderWindow& win) : audio(a), backgroundSprite(bs), window(win) {};
 
-	virtual void draw() = 0; // вывод на экран
-	virtual void handleEvents(sf::Event& event) = 0; // обработка нажатий
-	virtual void set_Active() { isActive = true; }
+	virtual void draw() = 0; // отображение на экране
+	virtual void handleEvents(sf::Event& event) = 0; // обработка нажатий клавиш
 	virtual GameState getNextState() = 0; // какое меню будет вызвано из текущего окна
+	virtual void set_Active() { isActive = true; }
 
 	bool get_isActive() const { return isActive; }
 };

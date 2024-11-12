@@ -4,8 +4,8 @@ int main()
 {
 
     // экран
-    int height = sf::VideoMode::getDesktopMode().height;
-    int width = sf::VideoMode::getDesktopMode().width;
+    uint16_t height = sf::VideoMode::getDesktopMode().height;
+    uint16_t width = sf::VideoMode::getDesktopMode().width;
     //int height = 600;
     //int width = 800;
     sf::RenderWindow window(sf::VideoMode(width, height), "TETRIS", sf::Style::Fullscreen);
@@ -30,6 +30,7 @@ int main()
     catch (const std::exception& e)
     {
         // error
+        auto temp = e.what();
         return 11; // код ошибки - не удалось открыть музыку
     }
 
@@ -40,7 +41,7 @@ int main()
         return 12; // код ошибки - не удалось загрузить шрифт
     }
 
-    // загрузка картинок для фона
+    // загрузка картинок
     sf::Texture backgroundTexture;
     sf::Texture mainMenuTexture;
     sf::Texture controlsTexture;
@@ -90,13 +91,13 @@ int main()
     GameState state = GameState::MainMenu; // первое окно при запуcке
     manager.setState(state);
 
-    int current_window;
+    size_t current_window;
 
     while (window.isOpen())
     {
         current_window = manager.get_state();
 
-        if (current_window == -1)
+        if (current_window == 999)
         {
             window.close();
             break;

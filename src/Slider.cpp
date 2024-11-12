@@ -6,17 +6,17 @@ Slider::Slider(sf::RenderWindow& win) : window(win)
 	background.setFillColor(sf::Color(200, 200, 200, 50));
 }
 
-void Slider::setValue(int value) 
+void Slider::setValue(uint8_t value)
 { 
 	this->value = value; 
 }
 
-void Slider::setMaxValue(int value)
+void Slider::setMaxValue(uint8_t value)
 {
 	this->max_value = value;
 }
 
-void Slider::setStep(int step) 
+void Slider::setStep(uint8_t step)
 { 
 	this->step = step; 
 }
@@ -49,7 +49,7 @@ void Slider::decrease()
 	}
 }
 
-void Slider::setPosition(int x, int y)
+void Slider::setPosition(float x, float y)
 {
 	scrollBar.setPosition(x, y);
 	background.setPosition(x, y);
@@ -71,7 +71,7 @@ void Slider::drawBar()
 
 void Slider::convert()
 {
-	length = static_cast<int>(value / 100.0 * size.x);
+	length = static_cast<uint16_t>(value / 100.0 * size.x);
 }
 
 void Slider::setNewLength()

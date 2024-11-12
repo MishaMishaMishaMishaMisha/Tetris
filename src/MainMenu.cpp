@@ -2,7 +2,7 @@
 
 // передаем в констуктор PauseMenu количество кнопок - 5 и их названия, изменяем положение на экране - y_pos=1.4, 
 MainMenu::MainMenu(sf::RenderWindow& win, sf::Font& font, Audio& a, sf::Sprite& backgroundSprite) :
-    PauseMenu(win, font, a, backgroundSprite, 5, { "PLAY", "PLAY PVP LOCAL", "OPTIONS", "HIGHSCORES", "EXIT"}, 1.4) {}
+    PauseMenu(win, font, a, backgroundSprite, 5, { "PLAY", "PLAY PVP LOCAL", "OPTIONS", "HIGHSCORES", "EXIT"}, 1.4f) {}
 
 void MainMenu::handleEvents(sf::Event& event)
 {
@@ -46,7 +46,8 @@ GameState MainMenu::getNextState()
         // highscore menu
         return GameState::HighscoreMenu;
     }
-    else if (selected_button == 4)
+    //else if (selected_button == 4)
+    else
     {
         // выход
         return GameState::Exit;
