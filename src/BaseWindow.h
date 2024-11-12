@@ -10,10 +10,11 @@ protected:
 	bool isActive = false; // флаг - активное окно или нет
 	Controls controls;
 	Audio& audio;
-	sf::Sprite& backgroundSprite;
+	sf::Sprite& backgroundSprite; // фон
+	sf::RenderWindow& window;
 
 public:
-	BaseWindow(Audio& a, sf::Sprite& bs) : audio(a), backgroundSprite(bs) {};
+	BaseWindow(Audio& a, sf::Sprite& bs, sf::RenderWindow& win) : audio(a), backgroundSprite(bs), window(win) {};
 
 	virtual void draw() = 0; // вывод на экран
 	virtual void handleEvents(sf::Event& event) = 0; // обработка нажатий

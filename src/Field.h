@@ -3,6 +3,7 @@
 #include "TetrisScore.h"
 #include <functional>
 #include <vector>
+#include <random>
 
 typedef std::vector<std::vector<sf::RectangleShape*>> Blocks;
 
@@ -35,6 +36,11 @@ private:
 
 	std::vector<std::function<void()>> functions; // перечень функций для создания случайной фигуры
 
+	// генераторы случайных чисел для выбора фигуры из вектора functions
+	bool isInit = false;
+	std::mt19937 generator;
+	std::uniform_int_distribution<int> distribution{ 0, 6 }; // всего 7 фигур
+
 	// функции для создания фигур
 	void createI();
 	void createO();
@@ -60,7 +66,7 @@ private:
 	void placeSwapFigure(); // разместить swap фигурy в спец. местe за полем
 
 public:
-	Field(int height, int width, sf::RenderWindow& win, sf::Font& font);
+	Field(int height, int width, sf::RenderWindow& win, sf::Font& font, FieldPosition pos);
 
 	// отображение поля, блоков, фигуры и счета в окне window 
 	void drawFigure();
@@ -100,5 +106,7 @@ public:
 	GameScore getScore() { return scoreTetris.getScore(); }
 
 	float getSpeed() { return levelSpeed; }
+
+	void setSeed(unsigned int  seed);
 };
 

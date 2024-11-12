@@ -2,11 +2,12 @@
 
 int main()
 {
-    srand(time(0));
 
     // экран
     int height = sf::VideoMode::getDesktopMode().height;
     int width = sf::VideoMode::getDesktopMode().width;
+    //int height = 600;
+    //int width = 800;
     sf::RenderWindow window(sf::VideoMode(width, height), "TETRIS", sf::Style::Fullscreen);
     window.setMouseCursorVisible(false);
 
@@ -69,20 +70,24 @@ int main()
     BaseWindow *pauseMenu = new PauseMenu(window, font, audio, backgroundSprite);
     BaseWindow *mainMenu = new MainMenu(window, font, audio, mainMenuSprite);
     BaseWindow* gameoverMenu = new GameOverMenu(window, font, audio, backgroundSprite);
+    BaseWindow* gameoverPvPMenu = new GameOverPvPMenu(window, font, audio, backgroundSprite);
     BaseWindow *highscoreMenu = new HighscoreMenu(window, font, audio, backgroundSprite);
     BaseWindow *optionsMenu = new OptionsMenu(window, font, audio, backgroundSprite, controlsTexture);
+    BaseWindow* gamePvPLocal = new GamePvPLocal(height, width, window, audio, backgroundSprite, font);
 
     // поместить все окна в вектор
     std::vector<BaseWindow*> windows;
     windows.push_back(mainMenu);
     windows.push_back(game);
+    windows.push_back(gamePvPLocal);
     windows.push_back(pauseMenu);
     windows.push_back(highscoreMenu);
     windows.push_back(gameoverMenu);
+    windows.push_back(gameoverPvPMenu);
     windows.push_back(optionsMenu);
 
     GameManager manager(windows);
-    GameState state = GameState::MainMenu; // первое окно при запуке
+    GameState state = GameState::MainMenu; // первое окно при запуcке
     manager.setState(state);
 
     int current_window;

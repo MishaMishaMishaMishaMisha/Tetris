@@ -1,17 +1,21 @@
 #include "Game.h"
 
-Game::Game(int height, int width, sf::RenderWindow& win, Audio& a, sf::Sprite& backgroundSprite, sf::Font& font) :
-    BaseWindow(a, backgroundSprite),
-    field(height, width, win, font), 
-    window(win)
+Game::Game(int height, int width, sf::RenderWindow& win, Audio& a, sf::Sprite& backgroundSprite, sf::Font& font, FieldPosition f_pos) :
+    BaseWindow(a, backgroundSprite, win),
+    field(height, width, win, font, f_pos)
 {
     // фигура
     field.initFigure();
 
+    if (f_pos != FieldPosition::Center)
+    {
+        isPVP = true;
+    }
 }
 
 void Game::restart()
 {
+
     moveSide = 0;
     moveDown = 0;
     moveSideCount = 0;
@@ -20,98 +24,110 @@ void Game::restart()
     field.restart();
     field.generateFigure();
 
-    audio.stopMusic();
     clock.restart();
 
+    if (!isPVP)
+    {
+        audio.stopMusic();
+    }
 }
 
 void Game::draw()
 {
-    // движение фигуры вниз каждые 0.5сек (с каждым уровнем быстрее)
-    // пока фигуры не опустился на самую последнюю клетку либо на другой блок
-    if (field.checkDown())
+    if (!gameOver)
     {
-        time = clock.getElapsedTime().asSeconds();
-        if (time > field.getSpeed())
-        {
-            field.moveFigure(0, 1);
-            clock.restart();
-        }
-
-        // доп. движение если была нажата кнопка вниз 
+        // движение фигуры вниз каждые 0.5сек (с каждым уровнем быстрее)
+        // пока фигуры не опустился на самую последнюю клетку либо на другой блок
         if (field.checkDown())
         {
-            field.moveFigure(0, moveDown);
+            time = clock.getElapsedTime().asSeconds();
+            if (time > field.getSpeed())
+            {
+                field.moveFigure(0, 1);
+                clock.restart();
+            }
+
+            // доп. движение если была нажата кнопка вниз 
+            if (field.checkDown())
+            {
+                field.moveFigure(0, moveDown);
+            }
         }
-    }
-    else
-    {
-        if (!moveLast)
+        else
         {
-            // Начало отсрочки закрепления фигуры
-            moveLast = true;
-            clock.restart();
+            if (!moveLast)
+            {
+                // Начало отсрочки закрепления фигуры
+                moveLast = true;
+                clock.restart();
+            }
+
+            // Позволяем боковое движение, если фигура еще "настраивается"
+            if (moveLast && field.checkSides(moveSide) && moveSideCount < 1)
+            {
+                field.moveFigure(moveSide);
+                moveSideCount++;
+
+                // Если после движения в сторону фигура может падать, сбрасываем состояние "настройки"
+                if (field.checkDown())
+                {
+                    moveLast = false;
+                }
+            }
+
+            // Закрепляем фигуру, если отсрочка прошла
+            if (moveLast && clock.getElapsedTime().asSeconds() > field.getSpeed())
+            {
+                moveLast = false;
+                field.addBlock(); // сохранем позицию кубов фигуры
+                if (field.checkRow()) // проверка на заполенные ряды
+                {
+                    audio.playDestroyRowEffect();
+                }
+                else
+                {
+                    audio.playFallFigureEffect();
+                }
+
+                // проверка на конец игры: если последняя опущенная фигура находится на y0 то game over
+                if (field.checkGameOver())
+                {
+                    gameOver = true;
+                    if (!isPVP)
+                    {
+                        audio.stopMusic();
+                        isActive = false;
+                    }
+                    goto drawAll;
+                }
+                field.generateFigure(); // создаем новую фигуру
+                clock.restart();
+            }
         }
 
-        // Позволяем боковое движение, если фигура еще "настраивается"
-        if (moveLast && field.checkSides(moveSide) && moveSideCount < 1)
+        // движение блока в стороны
+        if (!moveLast && field.checkSides(moveSide) && moveSideCount < 1)
         {
             field.moveFigure(moveSide);
             moveSideCount++;
-
-            // Если после движения в сторону фигура может падать, сбрасываем состояние "настройки"
-            if (field.checkDown())
-            {
-                moveLast = false;
-            }
         }
 
-        // Закрепляем фигуру, если отсрочка прошла
-        if (moveLast && clock.getElapsedTime().asSeconds() > field.getSpeed())
-        {
-            moveLast = false;
-            field.addBlock(); // сохранем позицию кубов фигуры
-            if (field.checkRow()) // проверка на заполенные ряды
-            {
-                audio.playDestroyRowEffect();
-            }
-            else
-            {
-                audio.playFallFigureEffect();
-            }
-
-            // проверка на конец игры: если последняя опущенная фигура находится на y0 то game over
-            if (field.checkGameOver())
-            {
-                //restart();
-                gameOver = true;
-                audio.stopMusic();
-                isActive = false;
-            }
-            field.generateFigure(); // создаем новую фигуру
-            clock.restart();
-        }
+        moveSide = 0;
+        moveDown = 0;
+        moveSideCount = 0;
     }
 
-    // движение блока в стороны
-    if (!moveLast && field.checkSides(moveSide) && moveSideCount < 1)
+    // оператор goto
+    drawAll:
+
+    if (!isPVP)
     {
-        field.moveFigure(moveSide);
-        moveSideCount++;
+        window.draw(backgroundSprite); // фон
     }
-
-    moveSide = 0;
-    moveDown = 0;
-    moveSideCount = 0;
-
-    //window.clear();
-    window.draw(backgroundSprite); // фон
     field.drawGrid(); // отобразить поле
     field.drawBlocks(); // отобразить упавшие блоки
     field.drawFigure(); // отобразить падающую, следующую фигуру и фигуру для смены 
     field.drawScore(); // отобразить поле с очками
-    //window.display();
-
 
 }
 
@@ -136,7 +152,7 @@ void Game::handleEvents(sf::Event& event)
         {
             moveDown = 1;
         }
-        else if (controls.button_escape(event))
+        else if (controls.button_escape(event) && !isPVP)
         {
             audio.playPauseEffect();
             audio.pauseMusic(true);
@@ -164,6 +180,19 @@ GameState Game::getNextState()
 
 void Game::set_Active()
 {
-    audio.playMusic();
+    if (!isPVP)
+    {
+        audio.playMusic();
+    }
     isActive = true;
+}
+
+void Game::setControlsMode(ControlsMode mode)
+{
+    controls.setMode(mode);
+}
+
+void Game::setSeed(unsigned int seed)
+{
+    field.setSeed(seed);
 }

@@ -5,7 +5,6 @@
 class PauseMenu : public BaseWindow
 {
 protected:
-	sf::RenderWindow& window;
 	sf::Font& font; // шрифт текста на кнопках
 	int max_size; // количество кнопок на экране паузы
 	std::vector<sf::Text> buttons;
@@ -15,6 +14,9 @@ protected:
 	void highlightButton(); // выделить выбранную кнопку другим цветом
 	void resetButtonsColor(); // вернуть исходные цвета
 	void init(float y_pos); // инициализация кнопок;
+
+	// пред. окно, чтобы знать откуда зашли в меню паузы - из одиночной игры или pvp игры
+	GameState prev_state = GameState::MainMenu;
 
 public:
 	PauseMenu(sf::RenderWindow& win, sf::Font& font, Audio& a, sf::Sprite& backgroundSprite, int max_size = 3, std::initializer_list<std::string> initList = { "CONTINUE", "OPTIONS", "MAIN MENU" }, float y_pos = 2.0f);
@@ -26,5 +28,7 @@ public:
 
 	void moveUp(); // переключить на кнопку ниже
 	void moveDown(); // переключить на кнопку выше
+
+	void setPrevState(GameState prev) { prev_state = prev; }
 };
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "Globals.h"
 
 // класс для создания сетки
 class Grid
@@ -21,7 +22,8 @@ private:
     int m = 22; // 11 вертикальных линий
 
 public:
-    Grid(int height, int width);
+    Grid(int height, int width, FieldPosition pos);
+
     void draw(sf::RenderWindow& window);
 
     int getS() { return s; };

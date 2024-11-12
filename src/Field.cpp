@@ -1,11 +1,12 @@
 #include "Field.h"
 
-Field::Field(int height, int width, sf::RenderWindow& win, sf::Font& font) : 
-    grid(height, width), 
+Field::Field(int height, int width, sf::RenderWindow& win, sf::Font& font, FieldPosition pos) :
+    grid(height, width, pos), 
     blocks(grid.getVerSize(), std::vector<sf::RectangleShape*>(grid.getHorSize(), nullptr)), 
     window(win), 
     font(font)
 {
+    setSeed(0);
 
     functions = {   std::bind(&Field::createI, this),
                     std::bind(&Field::createO, this),
@@ -253,16 +254,6 @@ void Field::initFigure()
 
         figure_shadow[i] = sf::RectangleShape(sf::Vector2f(grid.getS() - 1, grid.getS() - 1));
     }
-
-    // выбор след. фигуры
-    choice_next = rand() % functions.size();
-
-    // создание фигуры для смены
-    int choice = rand() % functions.size();
-    functions[choice]();
-    copyFigure(figure, figure_swap);
-    placeSwapFigure();
-    choice_swap = choice;
 }
 
 void Field::moveFigure(int side, int down)
@@ -387,7 +378,25 @@ void Field::rotate(bool force)
 
 void Field::generateFigure()
 {
-    int choice = rand() % functions.size();
+    if (!isInit)
+    {
+        // выбор след. фигуры
+        //choice_next = rand() % functions.size();
+        choice_next = distribution(generator);
+
+        // создание фигуры для смены
+        //int choice = rand() % functions.size();
+        int choice = distribution(generator);
+        functions[choice]();
+        copyFigure(figure, figure_swap);
+        placeSwapFigure();
+        choice_swap = choice;
+
+        isInit = true;
+    }
+
+    //int choice = rand() % functions.size();
+    int choice = distribution(generator);
     functions[choice]();
     copyFigure(figure, figure_next);
     placeNextFigure();
@@ -489,6 +498,8 @@ void Field::restart()
         }
     }
 
+    isInit = false;
+
     scoreTetris.reset();
     calculateSpeed(1);
 }
@@ -525,17 +536,37 @@ void Field::copyFigure(sf::RectangleShape (&from)[4], sf::RectangleShape (&to)[4
 
 void Field::placeNextFigure()
 {
+    // координаты area_next   
+    sf::Vector2f nextAreaPos = grid.getAreaNextPosition();
+    // начальные координаты фигуры
+    sf::Vector2f blockPos = figure_next[0].getPosition();
+    // координаты куда нужно переместить фигуру
+    float offsetX = nextAreaPos.x + 2 * grid.getS();
+    float offsetY = nextAreaPos.y + 2 * grid.getS();
+    // сдвиг
+    float moveX = offsetX - blockPos.x;
+    float moveY = offsetY - blockPos.y;
+
     for (int i = 0; i < 4; i++)
     {
-        figure_next[i].move(grid.getS() * 11, grid.getS() * 6);
+        figure_next[i].move(moveX, moveY);
     }
 }
 
 void Field::placeSwapFigure()
 {
+    sf::Vector2f nextAreaPos = grid.getAreaSwapPosition();
+    sf::Vector2f blockPos = figure_swap[0].getPosition();
+
+    float offsetX = nextAreaPos.x + 2 * grid.getS();
+    float offsetY = nextAreaPos.y + 2 * grid.getS();
+
+    float moveX = offsetX - blockPos.x;
+    float moveY = offsetY - blockPos.y;
+
     for (int i = 0; i < 4; i++)
     {
-        figure_swap[i].move(grid.getS() * (-12), grid.getS() * 10);
+        figure_swap[i].move(moveX, moveY);
     }
 }
 
@@ -660,4 +691,13 @@ void Field::createShadow()
         figure_shadow[i].move(0, y_count * grid.getS());
     }
 
+}
+
+void Field::setSeed(unsigned int  seed)
+{
+    if (seed == 0)
+    {
+        seed = time(0);
+    }
+    generator.seed(seed);
 }

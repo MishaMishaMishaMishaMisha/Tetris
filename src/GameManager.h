@@ -5,6 +5,8 @@
 #include "GameOverMenu.h"
 #include "HighscoreMenu.h"
 #include "OptionsMenu.h"
+#include "GamePvPLocal.h"
+#include "GameOverPvPMenu.h"
 
 // класс для переключения между окнами 
 class GameManager

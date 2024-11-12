@@ -1,8 +1,8 @@
 #include "MainMenu.h"
 
-// передаем в констуктор PauseMenu количество кнопок - 4 и их названия, изменяем положение на экране - y_pos=1.4, 
+// передаем в констуктор PauseMenu количество кнопок - 5 и их названия, изменяем положение на экране - y_pos=1.4, 
 MainMenu::MainMenu(sf::RenderWindow& win, sf::Font& font, Audio& a, sf::Sprite& backgroundSprite) :
-    PauseMenu(win, font, a, backgroundSprite, 4, { "PLAY", "OPTIONS", "HIGHSCORES", "EXIT" }, 1.4) {}
+    PauseMenu(win, font, a, backgroundSprite, 5, { "PLAY", "PLAY PVP LOCAL", "OPTIONS", "HIGHSCORES", "EXIT"}, 1.4) {}
 
 void MainMenu::handleEvents(sf::Event& event)
 {
@@ -34,14 +34,19 @@ GameState MainMenu::getNextState()
     else if (selected_button == 1)
     {
         // настройки
-        return GameState::OptionsMenu;
+        return GameState::GamePlayingPvPLocal;
     }
     else if (selected_button == 2)
+    {
+        // настройки
+        return GameState::OptionsMenu;
+    }
+    else if (selected_button == 3)
     {
         // highscore menu
         return GameState::HighscoreMenu;
     }
-    else if (selected_button == 3)
+    else if (selected_button == 4)
     {
         // выход
         return GameState::Exit;

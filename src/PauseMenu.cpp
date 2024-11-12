@@ -1,8 +1,7 @@
 #include "PauseMenu.h"
 
 PauseMenu::PauseMenu(sf::RenderWindow& win, sf::Font& font, Audio& a, sf::Sprite& backgroundSprite, int max_size, std::initializer_list<std::string> initList, float y_pos) :
-    BaseWindow(a, backgroundSprite),
-    window(win),
+    BaseWindow(a, backgroundSprite, win),
     font(font),
     max_size(max_size),
     buttons(max_size, sf::Text()),
@@ -96,7 +95,8 @@ GameState PauseMenu::getNextState()
 {
     if (selected_button == 0)
     {
-        return GameState::GamePlaying;
+        //return GameState::GamePlaying;
+        return prev_state; // либо одиночная игра либо pvp
     }
     else if (selected_button == 1)
     {

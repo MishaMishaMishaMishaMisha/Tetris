@@ -8,7 +8,6 @@
 class Game : public BaseWindow
 {
 private:
-	sf::RenderWindow& window;
 	Field field;
 
 	// переменная для сдвига блоков в стороны: 1 вправо, -1 влево, 0 на месте
@@ -23,8 +22,10 @@ private:
 	sf::Clock clock;
 	float time;
 
+	bool isPVP = false; // одиночная или pvp игра
+
 public:
-	Game(int height, int width, sf::RenderWindow& win, Audio& a, sf::Sprite& backgroundSprite, sf::Font& font);
+	Game(int height, int width, sf::RenderWindow& win, Audio& a, sf::Sprite& backgroundSprite, sf::Font& font, FieldPosition f_pos = FieldPosition::Center);
 
 	void draw() override;
 	void handleEvents(sf::Event& event) override; // обработка нажатий во время игры
@@ -35,5 +36,11 @@ public:
 	void set_Active() override;
 
 	GameScore getScore() { return field.getScore(); }
+
+	void setControlsMode(ControlsMode mode); // изменить управление - стрелки/wasd/оба типа
+
+	void setSeed(unsigned int seed);
+
+	bool isGameOver() { return gameOver; }
 };
 
