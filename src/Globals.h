@@ -7,6 +7,7 @@ enum class GameState
     MainMenu,
     GamePlaying,
     GamePlayingPvPLocal,
+    GamePlayingPvPOnline,
     PauseMenu,
     HighscoreMenu,
     GameoverMenu,

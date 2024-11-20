@@ -55,5 +55,7 @@ public:
 
 	void loadSettings(); // загрузить настройки громкости с файла
 	void saveSettings(); // схранить настройки громкости в файл
+
+	bool get_isPlaying() { return isPlaying; }
 };
 

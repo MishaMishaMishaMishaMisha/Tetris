@@ -9,7 +9,7 @@ protected:
 	uint8_t max_size; // количество кнопок на экране паузы
 	std::vector<sf::Text> buttons;
 	std::vector<std::string> names; // названия кнопок
-	uint8_t selected_button = 0;
+	int8_t selected_button = 0;
 
 	void highlightButton(); // выделить выбранную кнопку другим цветом
 	void resetButtonsColor(); // вернуть исходные цвета

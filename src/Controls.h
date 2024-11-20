@@ -3,7 +3,7 @@
 
 // тип управление: wasd - управление через wasd,
 // arrows - управление через стрелки, both - управление через wasd либо стрелки
-enum ControlsMode { WASD, ARROWS, BOTH };
+enum ControlsMode { WASD, ARROWS, BOTH};
 
 // класс для управления игрой
 class Controls

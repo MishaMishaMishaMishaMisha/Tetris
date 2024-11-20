@@ -19,6 +19,12 @@ public:
     void reset();
 
     GameScore getScore() const { return game_score; }
+    void setScore(GameScore game_score)
+    {
+        this->game_score.level = game_score.level;
+        this->game_score.lines = game_score.lines;
+        this->game_score.score = game_score.score;
+    }
 
     bool isUpdate; // изменилось ли к-во очков. нужно чтобы на каждой итерации не высчитывать position в методе drawScore класса Field
 };

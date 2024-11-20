@@ -44,8 +44,11 @@ void Audio::load()
 
 void Audio::playMusic()
 {
-	music.play();
-	isPlaying = true;
+	if (!isPlaying)
+	{
+		music.play();
+		isPlaying = true;
+	}
 }
 
 void Audio::stopMusic()

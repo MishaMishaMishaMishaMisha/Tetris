@@ -104,7 +104,8 @@ GameState GameOverPvPMenu::getNextState()
 {
     if (selected_button == 0)
     {
-        return GameState::GamePlayingPvPLocal;
+        //return GameState::GamePlayingPvPLocal;
+        return prev_state; // online or local
     }
     //else if (selected_button == 1)
     else
@@ -135,7 +136,7 @@ void GameOverPvPMenu::setUPtext()
 {
     if (is_newrecord)
     {
-        if (winner.score == game_score_left.score)
+        if (winner.score == game_score_left.score || prev_state == GameState::GamePlayingPvPOnline)
         {
             text_result_left.setString("PLAYER1 NEW RECORD!!!");
             text_result_left.setFillColor(sf::Color::Yellow);

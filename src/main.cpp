@@ -8,7 +8,8 @@ int main()
     uint16_t width = sf::VideoMode::getDesktopMode().width;
     //int height = 600;
     //int width = 800;
-    sf::RenderWindow window(sf::VideoMode(width, height), "TETRIS", sf::Style::Fullscreen);
+    //  sf::Style::Fullscreen
+    sf::RenderWindow window(sf::VideoMode(width, height), "TETRIS");
     window.setMouseCursorVisible(false);
 
     // загрузка контента
@@ -75,12 +76,14 @@ int main()
     BaseWindow *highscoreMenu = new HighscoreMenu(window, font, audio, backgroundSprite);
     BaseWindow *optionsMenu = new OptionsMenu(window, font, audio, backgroundSprite, controlsTexture);
     BaseWindow* gamePvPLocal = new GamePvPLocal(height, width, window, audio, backgroundSprite, font);
+    BaseWindow* gamePvPOnline = new GamePvPOnline(height, width, window, audio, backgroundSprite, font);
 
     // поместить все окна в вектор
     std::vector<BaseWindow*> windows;
     windows.push_back(mainMenu);
     windows.push_back(game);
     windows.push_back(gamePvPLocal);
+    windows.push_back(gamePvPOnline);
     windows.push_back(pauseMenu);
     windows.push_back(highscoreMenu);
     windows.push_back(gameoverMenu);
@@ -118,6 +121,7 @@ int main()
 
         // отображение на экране
         window.clear();
+        manager.checkPvPOnlinePauseCase(); // проверяем этот случай каждый раз ((
         windows[current_window]->draw();
         window.display();
 

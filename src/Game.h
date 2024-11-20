@@ -42,5 +42,9 @@ public:
 	void setSeed(uint32_t seed);
 
 	bool isGameOver() { return gameOver; }
+
+
+
+	Field& getField() { return field; }
 };
 

@@ -4,8 +4,11 @@
 #include <functional>
 #include <vector>
 #include <random>
+#include <array>
 
 typedef std::vector<std::vector<sf::RectangleShape*>> Blocks;
+
+class FieldSender; // дружественный класс, который сможет получать и отправлять изменения поля
 
 class Field
 {
@@ -16,6 +19,7 @@ private:
 	sf::RectangleShape figure_next[4]; // след. фигура
 	sf::RectangleShape figure_swap[4]; // фигура для смены
 	sf::RectangleShape figure_shadow[4]; // тень фигуры
+	sf::RectangleShape figure_last_fallen[4]; // последняя упавшая фигура
 	size_t choice_next = 0; // номер след. фигуры из вектора functions
 	size_t choice_swap = 0; // номер фигуры для смены
 	size_t choice_cur = 0; // номер текущей фигуры
@@ -103,10 +107,48 @@ public:
 	// тень нужно пересоздавать каждый раз после createNewFigure, rotate, swap, moveSide
 	void createShadow();
 
-	GameScore getScore() { return scoreTetris.getScore(); }
+	void setSeed(uint32_t seed);
 
 	float getSpeed() { return levelSpeed; }
 
-	void setSeed(uint32_t seed);
+	GameScore getScore() { return scoreTetris.getScore(); }
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+										//ONLINE//
+////////////////////////////////////////////////////////////////////////////////////////////
+
+	friend FieldSender;
+
+	// какие изменения случились с полем
+	bool isFigureChanged;
+	bool isNextFigureChanged;
+	bool isSwapFigureChanged;
+	bool isFigurePosChanged;
+	bool isNewBlocks;
+	bool isRowDestroyed;
+	bool isScoresChanged;
+
+
+	//// передача текущего состояния поля другому игроку
+	//std::array<sf::Vector2f, 4> sendFigurePosition(); // координаты текущей фигуры
+	//size_t sendCurFigure(); // текущая фигура
+	//size_t sendNextFigure(); // след. фигура
+	//size_t sendSwapFigure(); // фигура для смены
+	//GameScore sendScore(); // очки
+	//Blocks sendNewBlocks(); // упавшие блоки
+	//Blocks sendNewField(); // новое сотояние поля после уничтожения рядов
+
+	//// получение состояния поля соперника
+	//void receiveFigurePosition(std::array<sf::Vector2f, 4> pos);
+	//void receiveCurFigure(size_t choice_cur);
+	//void receiveNextFigure(size_t choice_next);
+	//void receiveSwapFigure(size_t choice_swap);
+	//void receiveScore(GameScore gameScore);
+	//void receiveNewBlocks(Blocks blocks);
+	//void receiveNewField(Blocks blocks);
+
 };
 

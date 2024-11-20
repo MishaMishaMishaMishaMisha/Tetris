@@ -4,7 +4,14 @@ Field::Field(uint16_t height, uint16_t width, sf::RenderWindow& win, sf::Font& f
     grid(height, width, pos), 
     blocks(grid.getVerSize(), std::vector<sf::RectangleShape*>(grid.getHorSize(), nullptr)), 
     window(win), 
-    font(font)
+    font(font),
+    isFigureChanged(false),
+    isNextFigureChanged(false),
+    isSwapFigureChanged(false),
+    isFigurePosChanged(false),
+    isNewBlocks(false),
+    isRowDestroyed(false),
+    isScoresChanged(false)
 {
     setSeed(0);
 
@@ -253,6 +260,9 @@ void Field::initFigure()
         figure_swap[i].setOutlineThickness(1);
 
         figure_shadow[i] = sf::RectangleShape(sf::Vector2f(grid.getS() - 1, grid.getS() - 1));
+
+        figure_last_fallen[i] = sf::RectangleShape(sf::Vector2f(grid.getS() - 1, grid.getS() - 1));
+        figure_last_fallen[i].setOutlineThickness(1);
     }
 }
 
@@ -266,6 +276,7 @@ void Field::moveFigure(int8_t side, int8_t down)
     {
         createShadow();
     }
+    isFigurePosChanged = true;
 }
 
 std::pair<uint16_t, uint16_t> Field::coordsTofield(const sf::Vector2f& coords)
@@ -374,6 +385,7 @@ void Field::rotate(bool force)
         figure[i].setPosition(newPos[i - 1].x, newPos[i - 1].y);
     }
     createShadow();
+    isFigurePosChanged = true;
 }
 
 void Field::generateFigure()
@@ -393,6 +405,8 @@ void Field::generateFigure()
         choice_swap = choice;
 
         isInit = true;
+
+        isSwapFigureChanged = true;
     }
 
     //int choice = rand() % functions.size();
@@ -405,6 +419,9 @@ void Field::generateFigure()
     choice_next = choice;
 
     createShadow();
+
+    isFigureChanged = true;
+    isNextFigureChanged = true;
 }
 
 int Field::checkRow()
@@ -469,6 +486,13 @@ int Field::checkRow()
 
     scoreTetris.addScore(lines);
     calculateSpeed(scoreTetris.getScore().level);
+
+    if (lines > 0)
+    {
+        isScoresChanged = true;
+        isRowDestroyed = true;
+    }
+
     return lines;
 }
 
@@ -508,10 +532,13 @@ void Field::addBlock()
 {
     for (size_t i = 0; i < 4; ++i)
     {
+        figure_last_fallen[i].setFillColor(figure[i].getFillColor());
+        figure_last_fallen[i].setPosition(figure[i].getPosition());
+
         std::pair<uint16_t, uint16_t> x_y = coordsTofield(figure[i].getPosition());
         blocks[x_y.second][x_y.first] = new sf::RectangleShape(figure[i]);
     }
-
+    isNewBlocks = true;
 }
 
 void Field::fallFigure()
@@ -638,6 +665,8 @@ void Field::swapFigure()
         placeSwapFigure();
         std::swap(choice_cur, choice_swap);
         createShadow();
+
+        isSwapFigureChanged = true;
     }
 }
 
@@ -701,3 +730,138 @@ void Field::setSeed(uint32_t seed)
     }
     generator.seed(seed);
 }
+
+
+
+
+
+
+
+
+//// передача текущего состояния поля другому игроку
+//
+//// координаты текущей фигуры
+//std::array<sf::Vector2f, 4> Field::sendFigurePosition()
+//{
+//    isFigurePosChanged = false;
+//    return { figure[0].getPosition(),
+//            figure[1].getPosition(),
+//            figure[2].getPosition(),
+//            figure[3].getPosition() };
+//}
+//// текущая фигура
+//size_t Field::sendCurFigure()
+//{
+//    isFigureChanged = false;
+//    return choice_cur;
+//}
+//// след. фигура
+//size_t Field::sendNextFigure()
+//{
+//    isNextFigureChanged = false;
+//    return choice_next;
+//}
+//// фигура для смены
+//size_t Field::sendSwapFigure()
+//{
+//    isSwapFigureChanged = false;
+//    return choice_swap;
+//}
+//// очки
+//GameScore Field::sendScore()
+//{
+//    isScoresChanged = false;
+//    return scoreTetris.getScore();
+//}
+//// упавшие блоки
+//Blocks Field::sendNewBlocks()
+//{
+//    isNewBlocks = false;
+//    return blocks;
+//}
+//// поле после уничтожения рядов
+//Blocks Field::sendNewField()
+//{
+//    isRowDestroyed = false;
+//    return blocks;
+//}
+//
+//// получение состояния поля соперника
+//
+//// координаты текущей фигуры
+//void Field::receiveFigurePosition(std::array<sf::Vector2f, 4> pos)
+//{
+//    for (size_t i = 0; i < 4; ++i)
+//    {
+//        // сдвигаем блоки на правое поле:
+//        pos[i].x += 12 * grid.getS();
+//        figure[i].setPosition(pos[i]);
+//    }
+//    createShadow();
+//}
+//// текущая фигура
+//void Field::receiveCurFigure(size_t choice_cur)
+//{
+//    this->choice_cur = choice_cur;
+//    functions[choice_cur]();
+//    createShadow();
+//}
+//// след. фигура
+//void Field::receiveNextFigure(size_t choice_next)
+//{
+//    this->choice_next = choice_next;
+//    functions[choice_next]();
+//    copyFigure(figure, figure_next);
+//    placeNextFigure();
+//}
+//// фигура для смены
+//void Field::receiveSwapFigure(size_t choice_swap)
+//{
+//    this->choice_swap = choice_swap;
+//    functions[choice_swap]();
+//    copyFigure(figure, figure_swap);
+//    placeSwapFigure();
+//}
+//// очки
+//void Field::receiveScore(GameScore gameScore)
+//{
+//    this->scoreTetris.isUpdate = true;
+//    this->scoreTetris.setScore(gameScore);
+//}
+//// упавшие блоки
+//void Field::receiveNewBlocks(Blocks blocks)
+//{
+//    for (size_t i = 0; i < blocks.size(); i++)
+//    {
+//        for (size_t j = 0; j < blocks[0].size(); j++)
+//        {
+//            if (blocks[i][j] && !this->blocks[i][j])
+//            {
+//                this->blocks[i][j] = new sf::RectangleShape(*blocks[i][j]);
+//                // сдвиг на правое поле
+//                this->blocks[i][j]->move(12 * grid.getS(), 0);
+//            }
+//        }
+//    }
+//}
+//// нопое поле после уничтожения рядов
+//void Field::receiveNewField(Blocks blocks)
+//{
+//    for (size_t i = 0; i < blocks.size(); i++)
+//    {
+//        for (size_t j = 0; j < blocks[0].size(); j++)
+//        {
+//            if (this->blocks[i][j])
+//            {
+//                delete this->blocks[i][j];
+//                this->blocks[i][j] = nullptr;
+//            }
+//            if (blocks[i][j])
+//            {
+//                this->blocks[i][j] = new sf::RectangleShape(*blocks[i][j]);
+//                // сдвиг на правое поле
+//                this->blocks[i][j]->move(12 * grid.getS(), 0);
+//            }
+//        }
+//    }
+//}

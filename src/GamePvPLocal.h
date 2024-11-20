@@ -3,7 +3,7 @@
 
 class GamePvPLocal : public BaseWindow
 {
-private:
+protected:
 	Game game_left;
 	Game game_right;
 
@@ -16,9 +16,13 @@ public:
 	void handleEvents(sf::Event& event) override;
 	GameState getNextState() override;
 	void set_Active() override;
-	void restart();
+	virtual void restart();
 
 	GameScore getScore_left() { return game_left.getScore(); }
-	GameScore getScore_right() { return game_right.getScore(); }
+	// делаем виртуальным для переопределения в классе GamePvPOnline
+	virtual GameScore getScore_right() { return game_right.getScore(); } 
+
+
+
 };
 
