@@ -6,7 +6,8 @@ GameOverMenu::GameOverMenu(sf::RenderWindow& win, sf::Font& font, Audio& audio, 
 {
     // путь к файлу с рекордом
     file_manager.setPath("Files/");
-    file_manager.setFileName("record.txt");
+    //file_manager.setFileName("record.txt");
+    file_manager.setFileName("record.bin");
 
 
     // info window

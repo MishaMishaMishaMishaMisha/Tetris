@@ -10,7 +10,8 @@ class FileManager
 {
 private:
 	std::string path = "";
-	std::string filename = "record.txt";
+	//std::string filename = "record.txt";
+	std::string filename = "record.bin";
 	std::ofstream output_stream; // запись
 	std::ifstream input_stream;  // чтение
 
@@ -19,9 +20,15 @@ public:
 	void setFileName(std::string fileName);
 
 	// очистка файла и запись новой строки
-	void writeLine(std::string line);
-
+	//void writeLine(std::string line);
+	//
 	// прочитать строку и вернуть ее
+	//std::string readLine();
+	//
+	// Запись в бинарный файл
+	void writeLine(std::string& str);
+
+	// Чтение из бинарного файла
 	std::string readLine();
 
 	// разбить строку на слова (числа)

@@ -10,7 +10,7 @@ int main()
     //int width = 800;
     //  sf::Style::Fullscreen
     sf::RenderWindow window(sf::VideoMode(width, height), "TETRIS");
-    window.setMouseCursorVisible(false);
+    //window.setMouseCursorVisible(false);
 
     // загрузка контента
 

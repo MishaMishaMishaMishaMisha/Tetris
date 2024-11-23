@@ -12,37 +12,54 @@ GamePvPOnline::GamePvPOnline(uint16_t height, uint16_t width, sf::RenderWindow& 
     is_youReady(false),
     is_opponentReady(false),
     is_error(false),
-    time(0)
+    is_textChanged(false),
+    is_binded(false),
+    time(0),
+    ping_time(0),
+    serverIP(sf::IpAddress::LocalHost),
+    port(53000),
+    upd_port(53001)
 {
+
     game_left.setControlsMode(ControlsMode::BOTH);
     field_opponent.initFigure();
 
 
-
+    // текст: connetion to server, disconnected, searching opponents...
     text.setFont(font);
     text.setFillColor(sf::Color::White);
     text.setCharacterSize(50);
-    text.setString("connection to server...");
-
+    text.setString("Connection to server...");
     // положение в центре экранa
     auto screen_size = window.getSize();
     sf::FloatRect text_bounds = text.getLocalBounds();
     text.setPosition(screen_size.x / 2.f - text_bounds.width / 2.f, screen_size.y / 4.f);
 
-
+    // имя игрока слева
     player1.setFont(font);
     player1.setFillColor(sf::Color::White);
     player1.setCharacterSize(30);
-    player1.setString("YOU \n Press enter \n to get ready");
+    player1.setString("     YOU \n Press enter \n to get ready");
     text_bounds = player1.getLocalBounds();
     player1.setPosition(0, 0);
 
+    // имя соперника
     player2.setFont(font);
     player2.setFillColor(sf::Color::White);
     player2.setCharacterSize(30);
     player2.setString("OPPONENT \n Unready");
     text_bounds = player2.getLocalBounds();
     player2.setPosition(screen_size.x - text_bounds.width, 0);
+
+    // пинг
+    ping_text.setFont(font);
+    ping_text.setFillColor(sf::Color::White);
+    ping_text.setCharacterSize(30);
+    ping_text.setString("PING: 000");
+    //sf::FloatRect ping_text_bounds = text.getLocalBounds();
+    //ping_text.setPosition(text_bounds.getPosition().x - ping_text_bounds.width, 10);
+    sf::FloatRect player2_bounds = player2.getGlobalBounds();
+    ping_text.setPosition(player2_bounds.left - ping_text.getLocalBounds().width - 20, player2_bounds.top);
 
 }
 
@@ -60,37 +77,44 @@ void GamePvPOnline::draw()
     // поиск соперника
     if (!is_opponent_found)
     {
-        // если не подключен к серверу, то подключемся
+        // подключаемся к серверу
         if (is_error)
         {
             window.draw(backgroundSprite);
-            window.draw(text);
+            //window.draw(text);
+            drawText();
         }
         else if (!is_connected_to_server)
         {
-            text.setString("connection to server...");
+            text.setString("Connection to server...");
+            is_textChanged = true;
             window.clear();
             window.draw(backgroundSprite);
-            window.draw(text);
+            //window.draw(text);
+            drawText();
             window.display();
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-            sf::Socket::Status status = socket.connect(sf::IpAddress::LocalHost, 53000);
-            if (status != sf::Socket::Done)
+            //sf::Socket::Status status = socket.connect(serverIP, port);
+            //if (status != sf::Socket::Done)
+            if (!connectToServer())
             {
-                text.setString("can't connect to server \n Press Esc to back to menu");
+                text.setString("  Server is unavailable\nPress Esc to back to menu");
+                is_textChanged = true;
                 is_error = true;
             }
             else
             {
-                // receive message
+                // start threads
                 receiver_thread = std::thread(&GamePvPOnline::receiveMsg, this);
+                //ping_thread = std::thread(&GamePvPOnline::checkPing, this);
                 is_connected_to_server = true;
             }
             
             window.clear();
             window.draw(backgroundSprite);
-            window.draw(text);
+            //window.draw(text);
+            drawText();
             window.display();
             clock.restart();
         }
@@ -101,13 +125,17 @@ void GamePvPOnline::draw()
             if (time > 60.f)
             {
                 disconnect();
-                text.setString("Can't find opponent \n Press Esc to back to menu");
+                text.setString("   Can't find opponent\nPress Esc to back to menu");
+                is_textChanged = true;
                 is_error = true;
             }
 
             window.draw(backgroundSprite);
-            window.draw(text);
+            //window.draw(text);
+            drawText();
         }
+
+
 
     }
     // начало игры
@@ -130,304 +158,106 @@ void GamePvPOnline::draw()
             if (field.isSwapFigureChanged)
             {
                 auto send_data = sender.sendSwapFigure(field);
-                size_t data_size = send_data.size();
-
+                send_packet.clear();
                 std::string msg = "SwapFigureChanged";
-                size_t msg_size = msg.size();
-
-                if (socket.send(&msg_size, sizeof(msg_size)) != sf::Socket::Done)
+                send_packet << msg << send_data;
+                if (socket.send(send_packet) != sf::Socket::Done)
                 {
                     disconnect();
                     text.setString("Server connection lost \n Press Esc to back to menu");
                     is_error = true;
                 }
-                if (socket.send(msg.c_str(), msg_size) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-                if (socket.send(&data_size, sizeof(data_size)) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-                if (socket.send(send_data.c_str(), data_size) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-
-                //socket.send(&msg_size, sizeof(msg_size));
-                //socket.send(msg.c_str(), msg_size);
-                //socket.send(&data_size, sizeof(data_size));
-                //socket.send(send_data.c_str(), data_size);
             }
             if (field.isNextFigureChanged)
             {
                 auto send_data = sender.sendNextFigure(field);
-                size_t data_size = send_data.size();
-
+                send_packet.clear();
                 std::string msg = "NextFigureChanged";
-                size_t msg_size = msg.size();
-
-                if (socket.send(&msg_size, sizeof(msg_size)) != sf::Socket::Done)
+                send_packet << msg << send_data;
+                if (socket.send(send_packet) != sf::Socket::Done)
                 {
                     disconnect();
                     text.setString("Server connection lost \n Press Esc to back to menu");
                     is_error = true;
                 }
-                if (socket.send(msg.c_str(), msg_size) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-                if (socket.send(&data_size, sizeof(data_size)) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-                if (socket.send(send_data.c_str(), data_size) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-
-                //socket.send(&msg_size, sizeof(msg_size));
-                //socket.send(msg.c_str(), msg_size);
-                //socket.send(&data_size, sizeof(data_size));
-                //socket.send(send_data.c_str(), data_size);
             }
             if (field.isFigureChanged)
             {
                 auto send_data = sender.sendCurFigure(field);
-                size_t data_size = send_data.size();
-
+                send_packet.clear();
                 std::string msg = "FigureChanged";
-                size_t msg_size = msg.size();
-
-                if (socket.send(&msg_size, sizeof(msg_size)) != sf::Socket::Done)
+                send_packet << msg << send_data;
+                if (socket.send(send_packet) != sf::Socket::Done)
                 {
                     disconnect();
                     text.setString("Server connection lost \n Press Esc to back to menu");
                     is_error = true;
                 }
-                if (socket.send(msg.c_str(), msg_size) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-                if (socket.send(&data_size, sizeof(data_size)) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-                if (socket.send(send_data.c_str(), data_size) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-
-                //socket.send(&msg_size, sizeof(msg_size));
-                //socket.send(msg.c_str(), msg_size);
-                //socket.send(&data_size, sizeof(data_size));
-                //socket.send(send_data.c_str(), data_size);
             }
             if (field.isFigurePosChanged)
             {
                 auto send_data = sender.sendFigurePosition(field);
-                size_t data_size = send_data.size();
-
+                send_packet.clear();
                 std::string msg = "FigurePosChanged";
-                size_t msg_size = msg.size();
-
-                if (socket.send(&msg_size, sizeof(msg_size)) != sf::Socket::Done)
+                send_packet << msg << send_data;
+                if (socket.send(send_packet) != sf::Socket::Done)
                 {
                     disconnect();
                     text.setString("Server connection lost \n Press Esc to back to menu");
                     is_error = true;
                 }
-                if (socket.send(msg.c_str(), msg_size) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-                if (socket.send(&data_size, sizeof(data_size)) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-                if (socket.send(send_data.c_str(), data_size) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-
-                //socket.send(&msg_size, sizeof(msg_size));
-                //socket.send(msg.c_str(), msg_size);
-                //socket.send(&data_size, sizeof(data_size));
-                //socket.send(send_data.c_str(), data_size);
             }
             if (field.isNewBlocks)
             {
                 auto send_data = sender.sendNewBlocks(field);
-                size_t data_size = send_data.size();
-
+                send_packet.clear();
                 std::string msg = "NewBlocks";
-                size_t msg_size = msg.size();
-
-                if (socket.send(&msg_size, sizeof(msg_size)) != sf::Socket::Done)
+                send_packet << msg << send_data;
+                if (socket.send(send_packet) != sf::Socket::Done)
                 {
                     disconnect();
                     text.setString("Server connection lost \n Press Esc to back to menu");
                     is_error = true;
                 }
-                if (socket.send(msg.c_str(), msg_size) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-                if (socket.send(&data_size, sizeof(data_size)) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-                if (socket.send(send_data.c_str(), data_size) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-
-                //socket.send(&msg_size, sizeof(msg_size));
-                //socket.send(msg.c_str(), msg_size);
-                //socket.send(&data_size, sizeof(data_size));
-                //socket.send(send_data.c_str(), data_size);
             }
             if (field.isRowDestroyed)
             {
                 auto send_data = sender.sendNewField(field);
-                size_t data_size = send_data.size();
-
+                send_packet.clear();
                 std::string msg = "RowDestroyed";
-                size_t msg_size = msg.size();
-
-                if (socket.send(&msg_size, sizeof(msg_size)) != sf::Socket::Done)
+                send_packet << msg << send_data;
+                if (socket.send(send_packet) != sf::Socket::Done)
                 {
                     disconnect();
                     text.setString("Server connection lost \n Press Esc to back to menu");
                     is_error = true;
                 }
-                if (socket.send(msg.c_str(), msg_size) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-                if (socket.send(&data_size, sizeof(data_size)) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-                if (socket.send(send_data.c_str(), data_size) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-
-                //socket.send(&msg_size, sizeof(msg_size));
-                //socket.send(msg.c_str(), msg_size);
-                //socket.send(&data_size, sizeof(data_size));
-                //socket.send(send_data.c_str(), data_size);
             }
             if (field.isScoresChanged)
             {
                 auto send_data = sender.sendScore(field);
-                size_t data_size = send_data.size();
-
+                send_packet.clear();
                 std::string msg = "ScoresChanged";
-                size_t msg_size = msg.size();
-
-                if (socket.send(&msg_size, sizeof(msg_size)) != sf::Socket::Done)
+                send_packet << msg << send_data;
+                if (socket.send(send_packet) != sf::Socket::Done)
                 {
                     disconnect();
                     text.setString("Server connection lost \n Press Esc to back to menu");
                     is_error = true;
                 }
-                if (socket.send(msg.c_str(), msg_size) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-                if (socket.send(&data_size, sizeof(data_size)) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-                if (socket.send(send_data.c_str(), data_size) != sf::Socket::Done)
-                {
-                    disconnect();
-                    text.setString("Server connection lost \n Press Esc to back to menu");
-                    is_error = true;
-                }
-
-                //socket.send(&msg_size, sizeof(msg_size));
-                //socket.send(msg.c_str(), msg_size);
-                //socket.send(&data_size, sizeof(data_size));
-                //socket.send(send_data.c_str(), data_size);
             }
         }
         if (game_left.isGameOver() && !gameOver_player)
         {
+            send_packet.clear();
             std::string msg = "GameOver";
-            size_t msg_size = msg.size();
-
-            if (socket.send(&msg_size, sizeof(msg_size)) != sf::Socket::Done)
+            send_packet << msg;
+            if (socket.send(send_packet) != sf::Socket::Done)
             {
                 disconnect();
                 text.setString("Server connection lost \n Press Esc to back to menu");
                 is_error = true;
             }
-            if (socket.send(msg.c_str(), msg_size) != sf::Socket::Done)
-            {
-                disconnect();
-                text.setString("Server connection lost \n Press Esc to back to menu");
-                is_error = true;
-            }
-            if (socket.send(&msg_size, sizeof(msg_size)) != sf::Socket::Done)
-            {
-                disconnect();
-                text.setString("Server connection lost \n Press Esc to back to menu");
-                is_error = true;
-            }
-            if (socket.send(msg.c_str(), msg_size) != sf::Socket::Done)
-            {
-                disconnect();
-                text.setString("Server connection lost \n Press Esc to back to menu");
-                is_error = true;
-            }
-
-            //socket.send(&msg_size, sizeof(msg_size));
-            //socket.send(msg.c_str(), msg_size);
-            //socket.send(&msg_size, sizeof(msg_size));
-            //socket.send(msg.c_str(), msg_size);
 
             gameOver_player = true;
             player1.setString("PLAYER1 \n Game Over");
@@ -438,6 +268,7 @@ void GamePvPOnline::draw()
         window.draw(backgroundSprite); // фон
         window.draw(player1); // текст в левом углy
         window.draw(player2); // текст в правом углу
+        window.draw(ping_text); // пинг
         window.draw(centerLine); // центральная линия
         if (is_youReady && is_opponentReady)
         {
@@ -474,43 +305,21 @@ void GamePvPOnline::handleEvents(sf::Event& event)
             isActive = false;
         }
 
-        if (controls.button_enter(event) && !is_youReady)
+        if (controls.button_enter(event) && is_opponent_found && !is_youReady)
         {
             player1.setString("YOU \n Ready");
             is_youReady = true;
 
+            send_packet.clear();
             std::string msg = "Ready";
-            size_t msg_size = msg.size();
-
-            if (socket.send(&msg_size, sizeof(msg_size)) != sf::Socket::Done)
-            {
-                disconnect();
-                text.setString("Server connection lost \n Press Esc to back to menu");
-                is_error = true;
-            }
-            if (socket.send(msg.c_str(), msg_size) != sf::Socket::Done)
-            {
-                disconnect();
-                text.setString("Server connection lost \n Press Esc to back to menu");
-                is_error = true;
-            }
-            if (socket.send(&msg_size, sizeof(msg_size)) != sf::Socket::Done)
-            {
-                disconnect();
-                text.setString("Server connection lost \n Press Esc to back to menu");
-                is_error = true;
-            }
-            if (socket.send(msg.c_str(), msg_size) != sf::Socket::Done)
+            send_packet << msg;
+            if (socket.send(send_packet) != sf::Socket::Done)
             {
                 disconnect();
                 text.setString("Server connection lost \n Press Esc to back to menu");
                 is_error = true;
             }
 
-            //socket.send(&msg_size, sizeof(msg_size));
-            //socket.send(msg.c_str(), msg_size);
-            //socket.send(&msg_size, sizeof(msg_size));
-            //socket.send(msg.c_str(), msg_size);
         }
     }
 
@@ -531,99 +340,110 @@ void GamePvPOnline::restart()
     is_youReady = false;
     is_opponentReady = false;
     is_error = false;
-    player1.setString("YOU \n Press enter \n to get ready");
+    player1.setString("     YOU \n Press enter \n to get ready");
     player2.setString("OPPONENT \n Unready");
     //audio.stopMusic();
 }
 
 void GamePvPOnline::receiveMsg()
 {
-    // Переменная для хранения размера сообщения
-    std::size_t msg_size;
-    std::size_t received;
+    sf::Packet packet_receive;
+    std::string msg;
+    std::string data;
 
     while (true)
     {
-        // Получение размера сообщения
-        if (socket.receive(&msg_size, sizeof(msg_size), received) != sf::Socket::Done || received != sizeof(msg_size))
+        packet_receive.clear();
+        msg.clear();
+        data.clear();
+
+        // сначала получаем весь пакет
+        if (socket.receive(packet_receive) != sf::Socket::Done)
         {
             is_error = true;
             text.setString("Disconnected from server");
+            is_textChanged = true;
             disconnect();
             return;
         }
 
-        // Получение сообщения
-        char* msg = new char[msg_size + 1];
-        msg[msg_size] = '\0';
-        if (socket.receive(msg, msg_size, received) != sf::Socket::Done || received != msg_size)
+        // считываем сообщение
+        if (!(packet_receive >> msg))
         {
-            delete[] msg;
             is_error = true;
-            text.setString("Disconnected from server");
+            text.setString("Failed to extract msg from packet");
+            is_textChanged = true;
             disconnect();
             return;
         }
 
-        std::string msg_str(msg);
-
-        if (msg_str == "Searhing for opponent...")
+        // определяем тип сообщения
+        if (msg == "Searhing for opponent...")
         {
-            text.setString(msg_str);
+            text.setString(msg);
+            is_textChanged = true;
         }
-        else if (msg_str == "Opponent found!")
+        else if (msg == "Opponent found!")
         {
-            text.setString(msg_str);
+            text.setString(msg);
+            is_textChanged = true;
             is_opponent_found = true;
+            ping_thread = std::thread(&GamePvPOnline::checkPing, this);
         }
-        else if (msg_str == "Your partner has disconnected")
+        else if (msg == "Your partner has disconnected")
         {
-            text.setString(msg_str);
+            text.setString(msg);
+            is_textChanged = true;
             is_opponent_found = false;
             audio.stopMusic();
         }
-        else if (msg_str == "Seed")
+        else if (msg == "Seed")
         {
-            if (socket.receive(&seed, sizeof(seed), received) != sf::Socket::Done)
+            // раскаковываем data (в этом случае число - сид)
+            if (!(packet_receive >> seed))
             {
+                //std::cout << "Failed to extract data from packet" << std::endl;
+                //continue;
                 is_error = true;
-                text.setString(msg_str);
-                text.setString("Disconnected from server");
+                text.setString("Failed to extract seed from packet");
+                is_textChanged = true;
                 disconnect();
                 return;
             }
+            // вызываем restart чтобы применить сид
             restart();
+        }
+        else if (msg == "GameOver")
+        {
+            player2.setString("OPPONENT \n Game Over");
+            gameOver_opponent = true;
+        }
+        else if (msg == "Ready")
+        {
+            player2.setString("OPPONENT \n Ready");
+            is_opponentReady = true;
         }
         // обработка типов изменений поля
         else
         {
-
-            if (socket.receive(&msg_size, sizeof(msg_size), received) != sf::Socket::Done || received != sizeof(msg_size))
+            // раскаковываем data 
+            if (!(packet_receive >> data))
             {
+                //std::cout << "Failed to extract data from packet" << std::endl;
+                //continue;
                 is_error = true;
-                text.setString("Disconnected from server");
+                text.setString("Failed to extract data from packet");
+                is_textChanged = true;
                 disconnect();
                 return;
             }
+            // отправляем обрабатывать data
+            receiveData(msg, data);
 
-            char* type_ = new char[msg_size + 1];
-            type_[msg_size] = '\0';
-            if (socket.receive(type_, msg_size, received) != sf::Socket::Done || received != msg_size)
-            {
-                delete[] type_;
-                is_error = true;
-                text.setString("Disconnected from server");
-                disconnect();
-                return;
-            }
-
-            std::string type_str(type_);
-            receiveData(msg_str, type_str);
         }
-        
 
-        delete[] msg;
     }
+
 }
 
 void GamePvPOnline::disconnect()
@@ -631,13 +451,19 @@ void GamePvPOnline::disconnect()
     if (socket.getRemoteAddress() != sf::IpAddress::None)
     {
         socket.disconnect();
-        //if (receiver_thread.joinable())
-        //{
-        //    receiver_thread.join();
-        //}
+        
         receiver_thread.detach();
+
         is_connected_to_server = false;
         is_opponent_found = false;
+    }
+    if (is_binded)
+    {
+        is_binded = false;
+        ping_socket.unbind();
+
+        //ping_thread.detach();
+
     }
 }
 
@@ -671,17 +497,112 @@ void GamePvPOnline::receiveData(std::string type, std::string data)
     {
         sender.receiveScore(field_opponent, data);
     }
-    else if (type == "GameOver")
-    {
-        player2.setString("OPPONENT \n Game Over");
-        gameOver_opponent = true;
-    }
-    else if (type == "Ready")
-    {
-        player2.setString("OPPONENT \n Ready");
-        is_opponentReady = true;
-    }
+
 }
 
+void GamePvPOnline::drawText()
+{
+    if (is_textChanged)
+    {
+        // положение в центре экранa
+        auto screen_size = window.getSize();
+        sf::FloatRect text_bounds = text.getLocalBounds();
+        text.setPosition(screen_size.x / 2.f - text_bounds.width / 2.f, screen_size.y / 4.f);
+        is_textChanged = false;
+    }
+    window.draw(text);
+}
 
+bool GamePvPOnline::connectToServer()
+{
+    // tcp socket
+    sf::Socket::Status status = socket.connect(serverIP, port);
+    if (status != sf::Socket::Done) 
+    {
+        socket.disconnect();
+        return false;
+    }
+    // upd socket
+    if (ping_socket.bind(sf::Socket::AnyPort) != sf::Socket::Done)
+    {
+        socket.disconnect();
+        ping_socket.unbind();
+        return false;
+    }
+    is_binded = true;
+
+    // отправляем ip,port игрока серверу
+    sf::Packet packet;
+    //packet << sf::IpAddress::getLocalAddress().toString() << ping_socket.getLocalPort();
+    packet << sf::IpAddress::LocalHost.toString() << ping_socket.getLocalPort();
+    if (socket.send(packet) != sf::Socket::Done) 
+    {
+        socket.disconnect();
+        ping_socket.unbind();
+        text.setString("Server connection lost \n Press Esc to back to menu");
+        is_error = true;
+        return false;
+    }
+
+    return true;
+}
+
+void GamePvPOnline::checkPing()
+{
+
+    ping_socket.setBlocking(false);
+
+    sf::IpAddress senderIP;
+    uint16_t senderPort;
+    std::string msg;
+
+    sf::Clock clock_local;
+    float time_local;
+
+    // сразу проверяем пинг
+    ping_packet.clear();
+    ping_packet << "PING";
+    ping_clock.restart();
+    ping_socket.send(ping_packet, serverIP, upd_port);
+    clock_local.restart();
+    ///////////////////////
+    while (is_connected_to_server)
+    //while (true)
+    {
+        // проверка пинга каждые 5 секунд
+        time_local = clock_local.getElapsedTime().asSeconds();
+        if (time_local > 5.f)
+        {
+            ping_packet.clear();
+            ping_packet << "PING";
+            ping_clock.restart();
+            ping_socket.send(ping_packet, serverIP, upd_port);
+            clock_local.restart();
+        }
+
+        // получаем сообщение
+        ping_packet.clear();
+        msg.clear();
+        ping_socket.receive(ping_packet, senderIP, senderPort);
+
+        ping_packet >> msg;
+        if (msg == "PING")
+        {
+            // посылаем сообщение обратно
+            ping_packet.clear();
+            ping_packet << "PONG";
+            ping_socket.send(ping_packet, serverIP, upd_port);
+        }
+        else if (msg == "PONG")
+        {
+            // считаем время за которое сообщение вернулось назад
+            ping_time = ping_clock.getElapsedTime().asMilliseconds();
+            ping_text.setString("PING: " + std::to_string(static_cast<int>(ping_time)));
+            ping_clock.restart();
+        }
+        
+    }
+
+
+}
 

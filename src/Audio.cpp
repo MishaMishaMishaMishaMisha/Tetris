@@ -3,7 +3,8 @@
 void Audio::load()
 {
 	file_manager.setPath("Files/");
-	file_manager.setFileName("settings.txt");
+	//file_manager.setFileName("settings.txt");
+	file_manager.setFileName("settings.bin");
 	// загружаем настройки с файла
 	loadSettings();
 	

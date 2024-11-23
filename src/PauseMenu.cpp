@@ -24,7 +24,7 @@ void PauseMenu::init(float y_pos)
         sf::FloatRect text_bounds = buttons[i].getLocalBounds();
         buttons[i].setPosition(
             screen_size.x / 2 - text_bounds.width / 2,  // центр по горизонтали
-            screen_size.y / y_pos - max_size * 50 + i * 100 // центр по вертикали с шагом 100
+            screen_size.y / y_pos - max_size * 45 + i * 90 // центр по вертикали с шагом между кнопками
         );
     }
     highlightButton();

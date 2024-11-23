@@ -9,41 +9,81 @@ void FileManager::setFileName(std::string fileName)
 	this->filename = fileName;
 }
 
-void FileManager::writeLine(std::string line)
+void FileManager::writeLine(std::string& str)
 {
-	output_stream.open(path + filename);
-
+	output_stream.open(path + filename, std::ios::binary | std::ios::out | std::ios::trunc); // Открытие файла в бинарном режиме с очисткой
 	if (!output_stream.is_open())
 	{
-		//std::cout << "file ne otkrilsya\n";
+		// Лог ошибки (можно добавить исключение)
+		return;
 	}
-	else
-	{
-		output_stream << line;
-	}
+
+	// Сначала записываем длину строки
+	size_t length = str.size();
+	output_stream.write(reinterpret_cast<const char*>(&length), sizeof(length));
+
+	// Затем записываем саму строку
+	output_stream.write(str.data(), length);
 
 	output_stream.close();
 }
 
 std::string FileManager::readLine()
 {
-	std::string line = "";
-
-	input_stream.open(path + filename);
+	input_stream.open(path + filename, std::ios::binary | std::ios::in); // Открытие файла в бинарном режиме
 	if (!input_stream.is_open())
 	{
-		//std::cout << "file ne otkrilsya\n";
-		return line;
+		// Лог ошибки (можно добавить исключение)
+		return "";
 	}
-	else
-	{
-		std::getline(input_stream, line);
-	}
-	
-	input_stream.close();
 
-	return line;
+	// Сначала читаем длину строки
+	size_t length = 0;
+	input_stream.read(reinterpret_cast<char*>(&length), sizeof(length));
+
+	// Затем читаем саму строку
+	std::string str(length, '\0'); // Инициализируем строку нужной длины
+	input_stream.read(&str[0], length);
+
+	input_stream.close();
+	return str;
 }
+
+//void FileManager::writeLine(std::string line)
+//{
+//	output_stream.open(path + filename);
+//
+//	if (!output_stream.is_open())
+//	{
+//		//std::cout << "file ne otkrilsya\n";
+//	}
+//	else
+//	{
+//		output_stream << line;
+//	}
+//
+//	output_stream.close();
+//}
+//
+//std::string FileManager::readLine()
+//{
+//	std::string line = "";
+//
+//	input_stream.open(path + filename);
+//	if (!input_stream.is_open())
+//	{
+//		//std::cout << "file ne otkrilsya\n";
+//		return line;
+//	}
+//	else
+//	{
+//		std::getline(input_stream, line);
+//	}
+//	
+//	input_stream.close();
+//
+//	return line;
+//}
 
 bool FileManager::isNumber(const std::string& str) 
 {

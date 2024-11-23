@@ -13,6 +13,7 @@ private:
 	bool gameOver_player;
 	bool gameOver_opponent;
 	FieldSender sender;   // отправка и получение состояния поля
+	sf::Packet send_packet;
 
 	bool is_opponent_found;
 	bool is_connected_to_server;
@@ -24,16 +25,43 @@ private:
 	sf::Text player1, player2; // надписи по углам
 
 	sf::TcpSocket socket;
+	sf::IpAddress serverIP;
+	uint16_t port; // порт сервера для tcp передачи
+	uint16_t upd_port; // порт сервера для udp передачи
 
 	std::thread receiver_thread;
+	void receiveMsg();
+	void receiveData(std::string type, std::string data);
 
 	uint32_t seed;
 
 	sf::Clock clock;
 	float time;
 
-	void receiveMsg();
-	void receiveData(std::string type, std::string data);
+	// ping
+	///////
+	sf::UdpSocket ping_socket;
+	bool is_binded;
+	std::thread ping_thread;
+	sf::Packet ping_packet;
+
+	//sf::UdpSocket ping_socket_receiver;
+	//bool is_receiver_binded;
+	//std::thread ping_thread_receiver;
+	//sf::Packet ping_packet_receiver;
+
+	sf::Text ping_text;
+	sf::Clock ping_clock;
+	float ping_time;
+
+	void checkPing();
+	///////
+
+
+	void drawText(); // отобразить текст сообщения по центру
+	bool is_textChanged;
+
+	bool connectToServer();
 
 public:
 	GamePvPOnline(uint16_t height, uint16_t width, sf::RenderWindow& win, Audio& a, sf::Sprite& backgroundSprite, sf::Font& font);
