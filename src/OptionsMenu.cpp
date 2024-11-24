@@ -7,10 +7,16 @@ OptionsMenu::OptionsMenu(sf::RenderWindow& win, sf::Font& font, Audio& a, sf::Sp
 {
     // картинка с управлением
     auto win_size = window.getSize();
-    controlsImage.setSize(sf::Vector2f(win_size.x / 5.f, win_size.y / 1.5f));
+
+    //size
+    float size_x = win_size.x / 4.f;
+    const float proporciya = 0.77;
+    float coef_y = size_x / (proporciya * win_size.y);
+    float size_y = win_size.y * coef_y;
+ 
+    controlsImage.setSize(sf::Vector2f(size_x, size_y));
     controlsImage.setTexture(&texture_cont);
-    float image_height = controlsImage.getSize().y;
-    controlsImage.setPosition(buttons[0].getPosition().x / 4, (win_size.y - image_height) / 2);
+    controlsImage.setPosition(buttons[0].getPosition().x / 4, (win_size.y - size_y) / 2);
 
     // ползунки громкости (положение возле надписей)
     auto button_pos = buttons[0].getPosition();
