@@ -6,11 +6,10 @@ int main()
     // экран
     uint16_t height = sf::VideoMode::getDesktopMode().height;
     uint16_t width = sf::VideoMode::getDesktopMode().width;
-    //int height = 600;
-    //int width = 800;
-    //  sf::Style::Fullscreen
-    sf::RenderWindow window(sf::VideoMode(width, height), "TETRIS");
-    //window.setMouseCursorVisible(false);
+
+    //sf::RenderWindow window(sf::VideoMode(width, height), "TETRIS");
+    sf::RenderWindow window(sf::VideoMode(width, height), "TETRIS", sf::Style::Fullscreen);
+    window.setMouseCursorVisible(false);
 
     // загрузка контента
 
@@ -74,6 +73,7 @@ int main()
     BaseWindow* gameoverMenu = new GameOverMenu(window, font, audio, backgroundSprite);
     BaseWindow* gameoverPvPMenu = new GameOverPvPMenu(window, font, audio, backgroundSprite);
     BaseWindow *highscoreMenu = new HighscoreMenu(window, font, audio, backgroundSprite);
+    BaseWindow* ratingMenu = new RatingMenu(window, font, audio, backgroundSprite);
     BaseWindow *optionsMenu = new OptionsMenu(window, font, audio, backgroundSprite, controlsTexture);
     BaseWindow* gamePvPLocal = new GamePvPLocal(height, width, window, audio, backgroundSprite, font);
     BaseWindow* gamePvPOnline = new GamePvPOnline(height, width, window, audio, backgroundSprite, font);
@@ -86,6 +86,7 @@ int main()
     windows.push_back(gamePvPOnline);
     windows.push_back(pauseMenu);
     windows.push_back(highscoreMenu);
+    windows.push_back(ratingMenu);
     windows.push_back(gameoverMenu);
     windows.push_back(gameoverPvPMenu);
     windows.push_back(optionsMenu);

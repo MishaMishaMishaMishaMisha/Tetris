@@ -98,6 +98,16 @@ void GameManager::updateState()
         GamePvPLocal* game_temp = dynamic_cast<GamePvPLocal*>(windows[static_cast<size_t>(prev_state)]);
         gameovermenu_temp->setScore_left(game_temp->getScore_left());
         gameovermenu_temp->setScore_right(game_temp->getScore_right());
+        // имена игроков
+        if (prev_state == GameState::GamePlayingPvPOnline)
+        {
+            GamePvPOnline* online_temp = dynamic_cast<GamePvPOnline*>(windows[static_cast<size_t>(prev_state)]);
+            gameovermenu_temp->setNames(online_temp->getNames());
+        }
+        else
+        {
+            gameovermenu_temp->setNames(std::make_pair(std::string("PLAYER1"), std::string("PLAYER2")));
+        }
         gameovermenu_temp->checkNewRecord(); // проверяем побит ли рекорд одним из игроков
         gameovermenu_temp->setUPtext();
         gameovermenu_temp->setPrevState(prev_state); // online or local
@@ -140,3 +150,4 @@ void GameManager::checkPvPOnlinePauseCase()
         windows[index_pvpOnline]->draw();
     }
 }
+

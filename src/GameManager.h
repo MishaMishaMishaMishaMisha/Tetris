@@ -4,6 +4,7 @@
 #include "MainMenu.h"
 #include "GameOverMenu.h"
 #include "HighscoreMenu.h"
+#include "RatingMenu.h"
 #include "OptionsMenu.h"
 #include "GamePvPLocal.h"
 #include "GameOverPvPMenu.h"

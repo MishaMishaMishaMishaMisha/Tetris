@@ -3,19 +3,20 @@
 void Server::init_server()
 {
     // bind the listener to a port
-    if (listener.listen(port, serverIP) != sf::Socket::Done)
+    //if (listener.listen(port, serverIP) != sf::Socket::Done)
+    if (listener.listen(port, sf::IpAddress::Any) != sf::Socket::Done)
     {
-        throw std::runtime_error("Failed to bind listener to this port");
+        throw std::runtime_error("Failed to bind server listener to this port");
     }
 
     // UDP socket
     if (udp_socket.bind(port_udp) != sf::Socket::Done)
     {
-        throw std::runtime_error("Failed to bind UDP socket to this port");
+        throw std::runtime_error("Failed to bind server UDP socket to this port");
     }
     udp_socket.setBlocking(false);
 
-    std::cout << "Server is ready to accept players" << std::endl;
+    std::cout << "Server is ready to accept players: " << serverIP.toString() << ": " << port <<  std::endl;
 }
 
 void Server::run()
@@ -28,7 +29,7 @@ void Server::run()
         auto player = std::make_shared<sf::TcpSocket>();
         if (listener.accept(*player) != sf::Socket::Done)
         {
-            std::cout << "Player can't connect.\n";
+            std::cout << "Player can't connect to server.";
             continue;
         }
 
@@ -53,7 +54,7 @@ void Server::run()
             counter++;
         }
 
-        std::cout << "Player " << newConnectionIndex + 1 << " connected!\n";
+        std::cout << "Player " << newConnectionIndex + 1 << " connected to server! ";
 
 
 
@@ -75,6 +76,8 @@ void Server::run()
         // записываем их в таблицу
         udpIPs[newConnectionIndex] = udpIP;
         udpPorts[newConnectionIndex] = udpPort;
+
+        std::cout << "His IP: " << ip_str << ": " << udpPort <<  std::endl;
 
 
 
@@ -181,14 +184,14 @@ void Server::playerHandler(int index)
         // получаем пакет от игрока
         if (player->receive(packet_player) != sf::Socket::Done)
         {
-            std::cout << "Player " << index + 1 << " disconnected.\n";
+            std::cout << "Player " << index + 1 << " disconnected from server.\n";
 
             // Отключение клиента и уведомление его пары
             std::lock_guard<std::mutex> lock(pairs_mutex);
             int pairIndex = pairs[index];
             if (pairIndex >= 0)
             {
-                std::string msg = "Your partner has disconnected";
+                std::string msg = "Your partner has disconnected from server";
                 packet_player.clear();
                 packet_player << msg;
 

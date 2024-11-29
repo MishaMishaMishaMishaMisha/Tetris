@@ -5,7 +5,7 @@
 #include "Globals.h"
 #include <vector>
 
-// класс для записи и чтения рекорда
+// класс для записи и чтения бинарного файла
 class FileManager
 {
 private:

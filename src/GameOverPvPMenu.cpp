@@ -8,20 +8,27 @@ GameOverPvPMenu::GameOverPvPMenu(sf::RenderWindow& win, sf::Font& font, Audio& a
 
     // путь к файлу с рекордом
     file_manager.setPath("Files/");
-    //file_manager.setFileName("record.txt");
     file_manager.setFileName("record.bin");
 
     auto screen_size = window.getSize();
+    
+    // Текст "WINNER OR LOOSER" по слева
+    text_winORlos_left.setFont(font);
+    text_winORlos_left.setString("WINORLOOSE");
+    text_winORlos_left.setCharacterSize(30);
+    text_winORlos_left.setFillColor(sf::Color::White);
+    sf::FloatRect text_bounds = text_winORlos_left.getLocalBounds();
+    text_winORlos_left.setPosition(screen_size.x / 4 - text_bounds.width / 2, screen_size.y / (y_pos + 0.5f));
 
-    // Заголовок "PLAYER1 RESULT" по центру над кнопками
+    // Текст "PLAYER1 RESULT" под пред. текстом
     text_result_left.setFont(font);
-    text_result_left.setString("PLAYER1 RESULT");
+    text_result_left.setString(player_name + " RESULT");
     text_result_left.setCharacterSize(30);
     text_result_left.setFillColor(sf::Color::White);
     sf::FloatRect result_bounds = text_result_left.getLocalBounds();
-    text_result_left.setPosition(screen_size.x / 4 - result_bounds.width / 2, screen_size.y / (y_pos + 0.5f));
+    text_result_left.setPosition(screen_size.x / 4 - result_bounds.width / 2, text_winORlos_left.getPosition().y + 40);
 
-    // "SCORE - <value>" над кнопками, под заголовком
+    // "SCORE - <value>" над кнопками, под под пред. текстом
     text_score_left.setFont(font);
     text_score_left.setString("SCORE - " + std::to_string(game_score_left.score));
     text_score_left.setCharacterSize(24);
@@ -47,13 +54,21 @@ GameOverPvPMenu::GameOverPvPMenu(sf::RenderWindow& win, sf::Font& font, Audio& a
 
 
  
-    // Заголовок "PLAYER2 RESULT" по центру над кнопками
+    // Текст "WINNER OR LOOSER" справа
+    text_winORlos_right.setFont(font);
+    text_winORlos_right.setString("WINORLOOSE");
+    text_winORlos_right.setCharacterSize(30);
+    text_winORlos_right.setFillColor(sf::Color::White);
+    text_bounds = text_winORlos_right.getLocalBounds();
+    text_winORlos_right.setPosition(screen_size.x / 2 + screen_size.x / 4 - text_bounds.width / 2, screen_size.y / (y_pos + 0.5f));
+
+    // Текст "PLAYER2 RESULT" под пред. текстом
     text_result_right.setFont(font);
-    text_result_right.setString("PLAYER2 RESULT");
+    text_result_right.setString(opponent_name + " RESULT");
     text_result_right.setCharacterSize(30);
     text_result_right.setFillColor(sf::Color::White);
     result_bounds = text_result_right.getLocalBounds();
-    text_result_right.setPosition(screen_size.x / 2 + screen_size.x / 4 - result_bounds.width / 2, screen_size.y / (y_pos + 0.5f));
+    text_result_right.setPosition(screen_size.x / 2 + screen_size.x / 4 - result_bounds.width / 2, text_winORlos_right.getPosition().y + 40);
 
     // "SCORE - <value>" над кнопками, под заголовком
     text_score_right.setFont(font);
@@ -118,10 +133,12 @@ GameState GameOverPvPMenu::getNextState()
 void GameOverPvPMenu::draw()
 {
     window.draw(backgroundSprite); // фон
+    window.draw(text_winORlos_left);
     window.draw(text_result_left);
     window.draw(text_score_left);
     window.draw(text_lines_left);
     window.draw(text_level_left);
+    window.draw(text_winORlos_right);
     window.draw(text_result_right);
     window.draw(text_score_right);
     window.draw(text_lines_right);
@@ -135,18 +152,34 @@ void GameOverPvPMenu::draw()
 
 void GameOverPvPMenu::setUPtext()
 {
+    if (game_score_left.score > game_score_right.score)
+    {
+        text_winORlos_left.setString("WINNER");
+        text_winORlos_right.setString("LOOSER");
+    }
+    else if (game_score_left.score == game_score_right.score)
+    {
+        text_winORlos_left.setString("GAME DRAW");
+        text_winORlos_right.setString("GAME DRAW");
+    }
+    else
+    {
+        text_winORlos_right.setString("WINNER");
+        text_winORlos_left.setString("LOOSER");
+    }
+
     if (is_newrecord)
     {
         if (winner.score == game_score_left.score || prev_state == GameState::GamePlayingPvPOnline)
         {
-            text_result_left.setString("PLAYER1 NEW RECORD!!!");
+            text_result_left.setString(player_name + " NEW RECORD!!!");
             text_result_left.setFillColor(sf::Color::Yellow);
             text_result_left.setOutlineThickness(3);
             text_result_left.setOutlineColor(sf::Color::Red);
         }
         else
         {
-            text_result_right.setString("PLAYER2 NEW RECORD!!!");
+            text_result_right.setString(opponent_name + " NEW RECORD!!!");
             text_result_right.setFillColor(sf::Color::Yellow);
             text_result_right.setOutlineThickness(3);
             text_result_right.setOutlineColor(sf::Color::Red);
@@ -154,11 +187,11 @@ void GameOverPvPMenu::setUPtext()
     }
     else
     {
-        text_result_left.setString("PLAYER1 RESULT");
+        text_result_left.setString(player_name + " RESULT");
         text_result_left.setFillColor(sf::Color::White);
         text_result_left.setOutlineThickness(0);
 
-        text_result_right.setString("PLAYER2 RESULT");
+        text_result_right.setString(opponent_name + " RESULT");
         text_result_right.setFillColor(sf::Color::White);
         text_result_right.setOutlineThickness(0);
     }
@@ -190,7 +223,21 @@ GameScore GameOverPvPMenu::readRecord()
 
 void GameOverPvPMenu::writeRecord()
 {
-    std::string line = std::to_string(winner.score) + " " + std::to_string(winner.lines) + " " + std::to_string(winner.level);
+    std::string line_read = file_manager.readLine();
+    std::vector<unsigned int> numbers = file_manager.splitIntoNumbers(line_read);
+    uint16_t count_games = 0;
+    uint16_t count_wins = 0;
+    std::string line;
+    if (numbers.size() >= 5)
+    {
+        count_games = numbers[3];
+        count_wins = numbers[4];
+        line = std::to_string(winner.score) + ' ' + std::to_string(winner.lines) + ' ' + std::to_string(winner.level) + " " + std::to_string(numbers[3]) + " " + std::to_string(numbers[4]) + " 1";
+    }
+    else
+    {
+        line = std::to_string(winner.score) + ' ' + std::to_string(winner.lines) + ' ' + std::to_string(winner.level) + " " + std::to_string(0) + " " + std::to_string(0) + " 1";
+    }
     file_manager.writeLine(line);
 }
 
@@ -217,5 +264,11 @@ void GameOverPvPMenu::checkNewRecord()
         is_newrecord = false;
         audio.playGameoverEffect();
     }
+}
+
+void GameOverPvPMenu::setNames(std::pair < std::string, std::string> names)
+{
+    player_name = names.first;
+    opponent_name = names.second;
 }
 

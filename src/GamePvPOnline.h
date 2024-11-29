@@ -1,6 +1,7 @@
 #pragma once
 #include "GamePvPLocal.h"
 #include "FieldSender.h"
+#include "FileManager.h"
 #include <thread>
 #include <chrono>
 #include <SFML/Network.hpp>
@@ -9,6 +10,17 @@
 class GamePvPOnline : public GamePvPLocal
 {
 private:
+	ServerInfo serverInfo;
+
+	bool is_logged_in;
+	std::string player_name = "";
+	std::string opponent_name = "";
+	FileManager file_user;
+	FileManager file_record;
+	void checkIsLoggedIn();
+	void increaseGamesCount();
+	void increaseWinsCount();
+
 	Field field_opponent; // правое поле
 	bool gameOver_player;
 	bool gameOver_opponent;
@@ -74,5 +86,7 @@ public:
 	GameScore getScore_right() override { return field_opponent.getScore(); }
 
 	void disconnect();
+
+	std::pair<std::string, std::string> getNames();
 };
 

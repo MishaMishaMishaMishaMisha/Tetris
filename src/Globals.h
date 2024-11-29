@@ -10,6 +10,7 @@ enum class GameState
     GamePlayingPvPOnline,
     PauseMenu,
     HighscoreMenu,
+    RatingMenu,
     GameoverMenu,
     GameoverPvPMenu,
     OptionsMenu,
@@ -31,4 +32,13 @@ enum class FieldPosition
     Center,
     Left,
     Right
+};
+
+// инфа сервера
+struct ServerInfo
+{
+    const char* ip = "34.16.110.198";
+    const uint16_t port_tcp = 53000;
+    const uint16_t port_udp = 53001;
+    const uint16_t port_db = 54000; // порт для подключения к базе данных
 };

@@ -5,15 +5,21 @@
 class GameOverPvPMenu : public PauseMenu
 {
 private:
+
+	std::string player_name = "PLAYER1";
+	std::string opponent_name = "PLAYER2";
+
 	GameScore game_score_left;
 	GameScore game_score_right;
 	GameScore winner;
 
+	sf::Text text_winORlos_left;
 	sf::Text text_result_left;
 	sf::Text text_score_left;
 	sf::Text text_lines_left;
 	sf::Text text_level_left;
 
+	sf::Text text_winORlos_right;
 	sf::Text text_result_right;
 	sf::Text text_score_right;
 	sf::Text text_lines_right;
@@ -40,5 +46,7 @@ public:
 	GameScore readRecord(); // прочитать рекорд из файла и вернуть его
 	void writeRecord(); // записать новый рекорд
 	void checkNewRecord(); // проверить был ли побит рекорд
+
+	void setNames(std::pair < std::string, std::string> names);
 };
 

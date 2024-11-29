@@ -137,7 +137,21 @@ GameScore GameOverMenu::readRecord()
 
 void GameOverMenu::writeRecord()
 {
-    std::string line = std::to_string(game_score.score) + " " + std::to_string(game_score.lines) + " " + std::to_string(game_score.level);
+    std::string line_read = file_manager.readLine();
+    std::vector<unsigned int> numbers = file_manager.splitIntoNumbers(line_read);
+    uint16_t count_games = 0;
+    uint16_t count_wins = 0;
+    std::string line;
+    if (numbers.size() >= 5)
+    {
+        count_games = numbers[3];
+        count_wins = numbers[4];
+        line = std::to_string(game_score.score) + ' ' + std::to_string(game_score.lines) + ' ' + std::to_string(game_score.level) + " " + std::to_string(numbers[3]) + " " + std::to_string(numbers[4]) + " 1";
+    }
+    else
+    {
+        line = std::to_string(game_score.score) + ' ' + std::to_string(game_score.lines) + ' ' + std::to_string(game_score.level) + " " + std::to_string(0) + " " + std::to_string(0) + " 1";
+    }
     file_manager.writeLine(line);
 }
 
